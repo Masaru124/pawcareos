@@ -75,9 +75,9 @@ export default async function PatientsPage({
           <Link className="button ghost" href={principal?.home ?? '/login'}>
             {principal?.label ?? 'Sign in'}
           </Link>
-          <Link className="button ghost" href="/logout">
+          <a className="button ghost" href="/logout">
             Sign out
-          </Link>
+          </a>
         </div>
       </div>
 

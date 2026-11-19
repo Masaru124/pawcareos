@@ -73,9 +73,10 @@ export function SiteHeader({ principal }: { principal: Principal | null }) {
                 <span className="role-chip">{principal.label}</span>
                 <span className="header-name">{principal.name}</span>
               </span>
-              <Link className="button ghost small" href="/logout">
+              {/* A session change must reload the server-rendered shell, not a client route. */}
+              <a className="button ghost small" href="/logout">
                 Sign out
-              </Link>
+              </a>
             </>
           ) : (
             <Link className="button small" href="/login">

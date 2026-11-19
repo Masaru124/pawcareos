@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 
 import { LoginForm } from '@/components/LoginForm';
-import { token } from '@/lib/session';
+import { currentPrincipal } from '@/lib/principal';
+import { sessionEmail } from '@/lib/session';
 
 const copy = {
   clinic: {
@@ -22,11 +22,45 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string; as?: string }>;
 }) {
-  if (await token()) redirect('/enter');
-
   const { error, as } = await searchParams;
   const role = as === 'parent' ? 'parent' : 'clinic';
   const text = copy[role];
+  const principal = await currentPrincipal();
+
+  // Signed in already? The form becomes the way out, not another way in.
+  if (principal) {
+    const email = await sessionEmail();
+    const landing = {
+      owner: 'operations',
+      doctor: 'my day',
+      receptionist: 'the front desk',
+      parent: 'my pets',
+    }[principal.role];
+    return (
+      <main className="wrap" style={{ paddingTop: 48, maxWidth: 460 }}>
+        <p className="eyebrow">Already signed in</p>
+        <h1 style={{ fontSize: 34 }}>You’re in.</h1>
+        <p className="muted" style={{ marginTop: 10 }}>
+          {principal.name}
+          {email ? ` · ${email}` : ''}
+        </p>
+
+        <div className="card" style={{ padding: '26px 24px', marginTop: 26 }}>
+          <p className="muted" style={{ fontSize: 15 }}>
+            Sign out first if you need to use a different address on this browser.
+          </p>
+          <div style={{ display: 'flex', gap: 10, marginTop: 18, flexWrap: 'wrap' }}>
+            <Link className="button" href={principal.home}>
+              Open {landing}
+            </Link>
+            <a className="button ghost" href="/logout">
+              Sign out
+            </a>
+          </div>
+        </div>
+      </main>
+    );
+  }
   const configured = Boolean(
     (process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL) &&
       (process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),

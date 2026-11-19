@@ -72,9 +72,9 @@ export default async function PortalPage() {
           <Link className="button ghost" href="/find-a-vet">
             Find a vet
           </Link>
-          <Link className="button ghost" href="/logout">
+          <a className="button ghost" href="/logout">
             Sign out
-          </Link>
+          </a>
         </div>
       </main>
     );
