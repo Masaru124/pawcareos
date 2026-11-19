@@ -160,9 +160,10 @@ export default async function AdminPage() {
         </div>
         <div className="stat">
           <div className="stat-value">{counts.appointments_today}</div>
-          <div className="stat-label">
-            Today{counts.online_today > 0 ? ` · ${counts.online_today} online` : ''}
-          </div>
+          <div className="stat-label">Appointments today</div>
+          {counts.online_today > 0 && (
+            <div className="stat-note">{counts.online_today} online</div>
+          )}
         </div>
         <div className="stat">
           <div className="stat-value">{counts.upcoming_week}</div>

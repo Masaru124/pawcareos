@@ -174,6 +174,28 @@
         "title": "AppointmentOut",
         "type": "object"
       },
+      "AppointmentStatus": {
+        "enum": [
+          "booked",
+          "confirmed",
+          "completed",
+          "cancelled"
+        ],
+        "title": "AppointmentStatus",
+        "type": "string"
+      },
+      "AppointmentStatusIn": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/AppointmentStatus"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "AppointmentStatusIn",
+        "type": "object"
+      },
       "AvailabilityOut": {
         "properties": {
           "day": {
@@ -658,6 +680,222 @@
         "title": "ConsultOut",
         "type": "object"
       },
+      "DayCountsOut": {
+        "properties": {
+          "cancelled": {
+            "title": "Cancelled",
+            "type": "integer"
+          },
+          "checked_in": {
+            "title": "Checked In",
+            "type": "integer"
+          },
+          "online": {
+            "title": "Online",
+            "type": "integer"
+          },
+          "seen": {
+            "title": "Seen",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "waiting": {
+            "title": "Waiting",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "waiting",
+          "checked_in",
+          "seen",
+          "online",
+          "cancelled"
+        ],
+        "title": "DayCountsOut",
+        "type": "object"
+      },
+      "DaySlotOut": {
+        "description": "One appointment as a dashboard needs it: who, when, why, and what can happen next.",
+        "properties": {
+          "allergies": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allergies",
+            "type": "array"
+          },
+          "breed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "chronic_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Chronic Conditions",
+            "type": "array"
+          },
+          "doctor_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doctor Name"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "parent_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Name"
+          },
+          "parent_phone_suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Phone Suffix"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "patient_id": {
+            "format": "uuid",
+            "title": "Patient Id",
+            "type": "string"
+          },
+          "patient_name": {
+            "title": "Patient Name",
+            "type": "string"
+          },
+          "room_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Url"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "species": {
+            "title": "Species",
+            "type": "string"
+          },
+          "starts_at": {
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "starts_at",
+          "patient_id",
+          "patient_name",
+          "species",
+          "breed",
+          "passport_slug",
+          "parent_name",
+          "parent_phone_suffix",
+          "status",
+          "source",
+          "mode",
+          "room_url",
+          "doctor_name",
+          "allergies",
+          "chronic_conditions"
+        ],
+        "title": "DaySlotOut",
+        "type": "object"
+      },
+      "DoctorDayOut": {
+        "properties": {
+          "appointments": {
+            "items": {
+              "$ref": "#/components/schemas/DaySlotOut"
+            },
+            "title": "Appointments",
+            "type": "array"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/DayCountsOut"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "doctor_name": {
+            "title": "Doctor Name",
+            "type": "string"
+          },
+          "next_up": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DaySlotOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "doctor_name",
+          "counts",
+          "appointments",
+          "next_up"
+        ],
+        "title": "DoctorDayOut",
+        "type": "object"
+      },
       "DoctorOut": {
         "properties": {
           "clinic": {
@@ -719,6 +957,59 @@
           "dead"
         ],
         "title": "DrainResult",
+        "type": "object"
+      },
+      "FrontDeskOut": {
+        "properties": {
+          "arriving": {
+            "items": {
+              "$ref": "#/components/schemas/DaySlotOut"
+            },
+            "title": "Arriving",
+            "type": "array"
+          },
+          "clinic_name": {
+            "title": "Clinic Name",
+            "type": "string"
+          },
+          "closes_at": {
+            "title": "Closes At",
+            "type": "string"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/DayCountsOut"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "finished": {
+            "items": {
+              "$ref": "#/components/schemas/DaySlotOut"
+            },
+            "title": "Finished",
+            "type": "array"
+          },
+          "opens_at": {
+            "title": "Opens At",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "clinic_name",
+          "opens_at",
+          "closes_at",
+          "counts",
+          "arriving",
+          "finished"
+        ],
+        "title": "FrontDeskOut",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -2048,6 +2339,65 @@
         ]
       }
     },
+    "/api/v1/appointments/{appointment_id}/status": {
+      "post": {
+        "description": "Check a patient in, mark them seen, or take the booking off the board.",
+        "operationId": "set_appointment_status_api_v1_appointments__appointment_id__status_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "appointment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Appointment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppointmentStatusIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Set Appointment Status",
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
     "/api/v1/auth/me": {
       "get": {
         "operationId": "me_api_v1_auth_me_get",
@@ -2130,6 +2480,118 @@
         "summary": "Create Consult",
         "tags": [
           "consults"
+        ]
+      }
+    },
+    "/api/v1/dashboard/doctor": {
+      "get": {
+        "description": "A doctor's own list. Empty is a valid answer: it means nothing is booked with them.",
+        "operationId": "doctor_day_api_v1_dashboard_doctor_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "on",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "On"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoctorDayOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Doctor Day",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/frontdesk": {
+      "get": {
+        "description": "The desk's board: who is due, who has arrived, who has been seen.",
+        "operationId": "front_desk_api_v1_dashboard_frontdesk_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "on",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "On"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FrontDeskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Front Desk",
+        "tags": [
+          "dashboard"
         ]
       }
     },

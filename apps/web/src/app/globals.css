@@ -557,6 +557,12 @@ textarea {
   color: var(--ink-faint);
 }
 
+.stat-note {
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--amber);
+}
+
 .stat.is-alert .stat-value {
   color: var(--amber);
 }

@@ -50,7 +50,7 @@ async function signIn(page: Page, email: string, password: string): Promise<void
   await page.getByLabel('Work email').fill(email);
   await page.getByLabel('Password').fill(password);
   await page.locator('form button[type="submit"]').click();
-  await page.waitForURL(/\/(admin|queue|portal)\/?$/, { timeout: 40_000 });
+  await page.waitForURL(/\/(admin|doctor|frontdesk|portal)\/?$/, { timeout: 40_000 });
 }
 
 test.beforeAll(() => {
@@ -75,7 +75,7 @@ test.describe('owner', () => {
       await signIn(page, creds.owner.email, creds.owner.password);
       await expect(page).toHaveURL(/\/admin$/);
       await expect(page.locator('main h1')).toHaveText(creds.clinic);
-      await expect(page.getByText('Admin panel · owner')).toBeVisible();
+      await expect(page.getByText('Owner · operations')).toBeVisible();
       await shot(page, 'owner-01-dashboard');
     });
 
@@ -116,12 +116,13 @@ test.describe('owner', () => {
       await shot(page, 'owner-02-team-after-invite');
     });
 
-    await test.step('clinic board opens in owner view', async () => {
-      await page.getByRole('link', { name: 'Clinic board' }).click();
-      await expect(page).toHaveURL(/\/queue$/);
-      await expect(page.getByText(/Owner view/)).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible();
-      await shot(page, 'owner-03-queue');
+    await test.step('opens the front desk board', async () => {
+      await page.getByRole('link', { name: 'Front desk' }).first().click();
+      await expect(page).toHaveURL(/\/frontdesk$/);
+      await expect(page.getByText('Front desk · arrivals')).toBeVisible();
+      await expect(page.locator('main h1')).toHaveText(creds.clinic);
+      await expect(page.getByText('In the waiting room')).toBeVisible();
+      await shot(page, 'owner-03-frontdesk');
     });
 
     await test.step('patient directory lists and searches', async () => {
@@ -142,16 +143,22 @@ test.describe('doctor', () => {
   test('queue, consult workspace, patient search, and RBAC walls', async ({ page }) => {
     watch(page, 'doctor');
 
-    await test.step('signs in and lands on the doctor board', async () => {
+    await test.step('signs in and lands on their own day', async () => {
       await signIn(page, creds.doctor.email, creds.doctor.password);
-      await expect(page).toHaveURL(/\/queue$/);
-      await expect(page.getByText(/Doctor.s board/)).toBeVisible();
-      await expect(page.getByText(`Signed in as ${creds.doctor.email}`)).toBeVisible();
-      await shot(page, 'doctor-01-queue');
+      await expect(page).toHaveURL(/\/doctor$/);
+      await expect(page.getByText('Doctor · clinical day')).toBeVisible();
+      await expect(page.locator('main h1')).toContainText('Your day');
+      await expect(page.getByText('Still to arrive', { exact: true })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Patient directory' })).toBeVisible();
+      await shot(page, 'doctor-01-day');
     });
 
-    await test.step('opens a consult workspace from the queue', async () => {
-      await page.getByRole('link', { name: 'Start consult' }).first().click();
+    await test.step('opens a consult workspace from their own list', async () => {
+      await page.goto('/patients');
+      await page.getByLabel('Search patients').fill('Bruno');
+      await page.getByRole('button', { name: 'Search' }).click();
+      await expect(page.getByText(/match(es)? for/)).toBeVisible();
+      await page.getByRole('link', { name: 'Consult' }).first().click();
       await expect(page).toHaveURL(/\/consult\/[0-9a-f-]+$/);
       await expect(page.getByText(/Consult ·/)).toBeVisible();
       await expect(page.locator('main h1')).not.toBeEmpty();
@@ -166,16 +173,16 @@ test.describe('doctor', () => {
       await shot(page, 'doctor-03-patient-search');
     });
 
-    await test.step('is refused the owner-only admin panel', async () => {
+    await test.step('is sent away from the owner panel', async () => {
       await page.goto('/admin');
-      await expect(page.getByText('Admin panel is for the clinic owner')).toBeVisible();
-      await shot(page, 'doctor-04-admin-refused');
+      await expect(page).toHaveURL(/\/doctor$/);
+      await expect(page.getByText('Owner · operations')).toHaveCount(0);
     });
 
-    await test.step('is refused the pet-parent portal', async () => {
+    await test.step('is sent away from the pet-parent portal', async () => {
       await page.goto('/portal');
-      await expect(page.getByText('No pet records on this account')).toBeVisible();
-      await shot(page, 'doctor-05-portal-refused');
+      await expect(page).toHaveURL(/\/doctor$/);
+      await expect(page.getByText('Pet parent · passport')).toHaveCount(0);
     });
   });
 });
@@ -193,7 +200,7 @@ test.describe('pet parent', () => {
       await expect(page).toHaveURL(/\/portal$/);
       await expect(page.locator('main h1')).toHaveText('Priya Sharma');
       await expect(page.getByText(/Number ending …1122/)).toBeVisible();
-      petName = (await page.locator('section article h2').first().innerText()).trim();
+      petName = (await page.locator('.day-list .slot-main strong').first().innerText()).trim();
       expect(petName.length).toBeGreaterThan(0);
       await shot(page, 'parent-01-portal');
     });
@@ -208,22 +215,30 @@ test.describe('pet parent', () => {
     });
 
     await test.step('opens the public passport', async () => {
-      await page.getByRole('link', { name: 'Passport' }).first().click();
+      // Follow the record's own passport href: the sticky header can sit over a
+      // link at the very top of a scrolled page, so a raw click is flaky here.
+      const passport = await page
+        .locator('main')
+        .getByRole('link', { name: 'Passport', exact: true })
+        .first()
+        .getAttribute('href');
+      expect(passport).toMatch(/^\/p\//);
+      await page.goto(passport ?? '/portal');
       await expect(page).toHaveURL(/\/p\/[a-z0-9-]+$/i);
       await expect(page.locator('main h1')).toHaveText(petName);
       await shot(page, 'parent-03-passport');
     });
 
-    await test.step('cannot reach the clinic queue', async () => {
+    await test.step('is sent back to the portal from the old queue link', async () => {
       await page.goto('/queue');
-      await expect(page.getByText('This account is not linked to a clinic yet')).toBeVisible();
-      await shot(page, 'parent-04-queue-refused');
+      await expect(page).toHaveURL(/\/portal$/);
+      await shot(page, 'parent-04-queue-redirect');
     });
 
-    await test.step('cannot reach the admin panel', async () => {
+    await test.step('cannot reach the owner panel', async () => {
       await page.goto('/admin');
-      await expect(page.getByText('Admin panel · owner')).toHaveCount(0);
-      await shot(page, 'parent-05-admin-refused');
+      await expect(page).toHaveURL(/\/portal$/);
+      await expect(page.getByText('Owner · operations')).toHaveCount(0);
     });
 
     await test.step('books a 24/7 online consult from the public directory', async () => {
