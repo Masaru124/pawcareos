@@ -1076,6 +1076,46 @@
         "title": "IntakeOut",
         "type": "object"
       },
+      "InviteCheckIn": {
+        "properties": {
+          "email": {
+            "maxLength": 255,
+            "minLength": 5,
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "InviteCheckIn",
+        "type": "object"
+      },
+      "InviteCheckOut": {
+        "description": "Whether an address may create an account, and which door it opens.",
+        "properties": {
+          "invited": {
+            "title": "Invited",
+            "type": "boolean"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          }
+        },
+        "required": [
+          "invited"
+        ],
+        "title": "InviteCheckOut",
+        "type": "object"
+      },
       "MeOut": {
         "properties": {
           "clinic_id": {
@@ -2395,6 +2435,48 @@
         "summary": "Set Appointment Status",
         "tags": [
           "appointments"
+        ]
+      }
+    },
+    "/api/v1/auth/invitation": {
+      "post": {
+        "description": "Strict sign-up gate: only an address a clinic invited may create an account.\n\nSign-in stays password-first. This answers one bit about an address (is it on a\nclinic's list, and is that list staff or a family) and never a name, role or pet.",
+        "operationId": "invitation_api_v1_auth_invitation_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteCheckIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteCheckOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Invitation",
+        "tags": [
+          "auth"
         ]
       }
     },

@@ -1,6 +1,6 @@
 import uuid
 
-from app.models import ClinicUser, UserRole
+from app.models import ClinicUser, PetParentAccount, UserRole
 
 
 async def test_first_sign_in_claims_an_invited_row_by_email(client, seeded, session, jwks):
@@ -41,3 +41,36 @@ async def test_an_unknown_email_cannot_claim_anything(client, seeded, jwks):
         headers={"Authorization": f"Bearer {jwks.sign(uuid.uuid4(), email='stranger@example.com')}"},
     )
     assert response.status_code == 401
+
+
+async def test_only_an_invited_address_may_create_an_account(client, seeded, session):
+    staff = await client.post(
+        "/api/v1/auth/invitation",
+        json={"email": f"  {seeded.doctor.email.upper()}  "},
+    )
+    assert staff.status_code == 200
+    assert staff.json() == {"invited": True, "kind": "clinic"}
+
+    session.add(
+        PetParentAccount(pet_parent_id=seeded.patient.parent_id, email="family@example.com")
+    )
+    await session.flush()
+    family = await client.post(
+        "/api/v1/auth/invitation", json={"email": "family@example.com"}
+    )
+    assert family.json() == {"invited": True, "kind": "parent"}
+
+    stranger = await client.post(
+        "/api/v1/auth/invitation", json={"email": "stranger@example.com"}
+    )
+    assert stranger.json() == {"invited": False, "kind": None}
+
+
+async def test_a_deactivated_staff_row_is_not_an_invitation(client, seeded, make_user):
+    former = await make_user(
+        seeded.clinic_a, role=UserRole.RECEPTIONIST, vci=None, is_active=False
+    )
+    response = await client.post(
+        "/api/v1/auth/invitation", json={"email": former.email}
+    )
+    assert response.json()["invited"] is False

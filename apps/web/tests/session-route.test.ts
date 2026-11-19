@@ -19,8 +19,25 @@ function request(payload: Record<string, unknown>): Request {
   });
 }
 
-function stubFetch(response: Response) {
-  const spy = vi.fn().mockResolvedValue(response);
+type Replies = {
+  token?: Response;
+  signup?: Response;
+  invitation?: Response;
+  clinic?: Response;
+  parent?: Response;
+};
+
+/** Answers per endpoint, so the identity gate is exercised, not short-circuited. */
+function stubFetch(replies: Replies) {
+  const spy = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+    const url = String(input);
+    if (url.includes('/api/v1/auth/invitation')) return replies.invitation ?? json({ invited: true, kind: 'clinic' });
+    if (url.includes('/auth/v1/signup')) return replies.signup ?? json({});
+    if (url.includes('/auth/v1/token')) return replies.token ?? json({ access_token: 'a.b.c', expires_in: 900 });
+    if (url.includes('/api/v1/auth/me')) return replies.clinic ?? json({ role: 'doctor' });
+    if (url.includes('/api/v1/portal/me')) return replies.parent ?? json({}, 401);
+    return json({}, 404);
+  });
   vi.stubGlobal('fetch', spy);
   return spy;
 }
@@ -38,7 +55,7 @@ afterEach(() => {
 
 describe('sign in', () => {
   it('stores the token in an httpOnly cookie', async () => {
-    const fetchSpy = stubFetch(json({ access_token: 'a.b.c', expires_in: 900 }));
+    const fetchSpy = stubFetch({ token: json({ access_token: 'a.b.c', expires_in: 900 }) });
 
     const response = await POST(request({ email: 'doc@clinic.test', password: 'secret1' }));
 
@@ -55,8 +72,22 @@ describe('sign in', () => {
     expect((init as RequestInit).headers).toMatchObject({ apikey: 'anon-key' });
   });
 
+  it('refuses a verified password for an address no clinic knows', async () => {
+    stubFetch({
+      token: json({ access_token: 'orphan.token' }),
+      clinic: json({}, 401),
+      parent: json({}, 401),
+    });
+
+    const response = await POST(request({ email: 'stranger@example.com', password: 'secret1' }));
+
+    expect(response.status).toBe(403);
+    expect((await response.json()).error).toContain("isn't linked to a clinic or pet record");
+    expect(response.headers.get('set-cookie')).toBeNull();
+  });
+
   it('explains wrong credentials instead of echoing the provider', async () => {
-    stubFetch(json({ error_code: 'invalid_credentials', msg: 'Invalid login credentials' }, 400));
+    stubFetch({ token: json({ error_code: 'invalid_credentials', msg: 'Invalid login credentials' }, 400) });
 
     const response = await POST(request({ email: 'doc@clinic.test', password: 'wrong' }));
     const body = await response.json();
@@ -67,7 +98,7 @@ describe('sign in', () => {
   });
 
   it('names confirmation as the reason when the address is not confirmed', async () => {
-    stubFetch(json({ error_code: 'email_not_confirmed', msg: 'Email not confirmed' }, 400));
+    stubFetch({ token: json({ error_code: 'email_not_confirmed', msg: 'Email not confirmed' }, 400) });
 
     const response = await POST(request({ email: 'doc@clinic.test', password: 'secret1' }));
 
@@ -78,7 +109,7 @@ describe('sign in', () => {
   });
 
   it('passes through an unclassified provider message', async () => {
-    stubFetch(json({ msg: 'Email rate limit exceeded' }, 429));
+    stubFetch({ token: json({ msg: 'Email rate limit exceeded' }, 429) });
 
     const response = await POST(request({ email: 'doc@clinic.test', password: 'secret1' }));
 
@@ -87,7 +118,7 @@ describe('sign in', () => {
   });
 
   it('fails loudly when the provider returns no token', async () => {
-    stubFetch(json({ ok: true }));
+    stubFetch({ token: json({ ok: true }) });
 
     const response = await POST(request({ email: 'doc@clinic.test', password: 'secret1' }));
 
@@ -98,7 +129,7 @@ describe('sign in', () => {
 
 describe('sign up', () => {
   it('asks for confirmation when the provider returns no session', async () => {
-    const fetchSpy = stubFetch(json({ id: 'user-1', email: 'new@clinic.test' }));
+    const fetchSpy = stubFetch({ signup: json({ id: 'user-1', email: 'new@clinic.test' }) });
 
     const response = await POST(
       request({ email: 'new@clinic.test', password: 'secret1', mode: 'signup' }),
@@ -110,11 +141,42 @@ describe('sign up', () => {
     expect(body.message).toContain('Confirm the address');
     expect(response.headers.get('set-cookie')).toBeNull();
 
-    expect(fetchSpy.mock.calls[0][0]).toBe(`${URL}/auth/v1/signup`);
+    expect(fetchSpy.mock.calls.map(([url]) => String(url))).toEqual([
+      'http://127.0.0.1:8000/api/v1/auth/invitation',
+      `${URL}/auth/v1/signup`,
+    ]);
+  });
+
+  it('refuses an address no clinic invited, before creating an account', async () => {
+    const fetchSpy = stubFetch({ invitation: json({ invited: false, kind: null }) });
+
+    const response = await POST(
+      request({ email: 'stranger@example.com', password: 'secret1', mode: 'signup' }),
+    );
+
+    expect(response.status).toBe(403);
+    expect((await response.json()).error).toContain("isn't on a clinic invite list");
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(response.headers.get('set-cookie')).toBeNull();
+  });
+
+  it('creates nothing when the invite list cannot be reached', async () => {
+    const fetchSpy = stubFetch({ invitation: json({}, 500) });
+
+    const response = await POST(
+      request({ email: 'new@clinic.test', password: 'secret1', mode: 'signup' }),
+    );
+
+    expect(response.status).toBe(503);
+    expect((await response.json()).error).toContain('invite list is unreachable');
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
   it('signs in directly when the project auto-confirms', async () => {
-    stubFetch(json({ access_token: 'new.token', expires_in: 3600 }));
+    stubFetch({
+      signup: json({ access_token: 'new.token', expires_in: 3600 }),
+      clinic: json({ role: 'receptionist' }),
+    });
 
     const response = await POST(
       request({ email: 'new@clinic.test', password: 'secret1', mode: 'signup' }),
@@ -126,7 +188,7 @@ describe('sign up', () => {
   });
 
   it('surfaces the provider reason for a rejected address', async () => {
-    stubFetch(json({ code: 400, msg: 'Email address "x@example.com" is invalid' }, 400));
+    stubFetch({ signup: json({ code: 400, msg: 'Email address "x@example.com" is invalid' }, 400) });
 
     const response = await POST(
       request({ email: 'x@example.com', password: 'secret1', mode: 'signup' }),
@@ -137,7 +199,7 @@ describe('sign up', () => {
   });
 
   it('refuses a password shorter than six characters before calling out', async () => {
-    const fetchSpy = stubFetch(json({}));
+    const fetchSpy = stubFetch({});
 
     const response = await POST(
       request({ email: 'new@clinic.test', password: 'abc', mode: 'signup' }),

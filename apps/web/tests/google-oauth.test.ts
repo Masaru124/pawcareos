@@ -5,6 +5,13 @@ import { GET as callback } from '../src/app/auth/callback/route';
 
 const BASE = 'https://demo.supabase.co';
 
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 function request(path: string, cookie?: string, host?: string): Request {
   return new Request(`http://localhost:3000${path}`, {
     headers: {
@@ -98,12 +105,11 @@ describe('the callback', () => {
   });
 
   it('exchanges the code and issues the session cookie', async () => {
-    const fetchSpy = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ access_token: 'google.token', expires_in: 3600 }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
-    );
+    const fetchSpy = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes('/api/v1/auth/me')) return json({ role: 'doctor' });
+      return json({ access_token: 'google.token', expires_in: 3600 });
+    });
     vi.stubGlobal('fetch', fetchSpy);
 
     const response = await callback(
@@ -120,6 +126,24 @@ describe('the callback', () => {
       auth_code: 'the-code',
       code_verifier: 'the-verifier',
     });
+  });
+
+  it('does not open a session for an address no clinic knows', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes('/api/v1/')) return json({}, 401);
+        return json({ access_token: 'google.token', expires_in: 3600 });
+      }),
+    );
+
+    const response = await callback(
+      request('/auth/callback?code=the-code&state=the-state', 'pc_pkce=the-verifier.the-state'),
+    );
+
+    expect(response.headers.get('location')).toContain('/login?error=This+address');
+    expect(response.headers.get('set-cookie') ?? '').not.toContain('pc_token=');
   });
 
   it('surfaces a failed exchange', async () => {

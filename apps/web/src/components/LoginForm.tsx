@@ -114,7 +114,7 @@ export function LoginForm() {
         <p className="fine">
           {creating
             ? 'Use the address your clinic invited. The first sign-in claims that invitation.'
-            : 'Sessions last an hour and live in an httpOnly cookie.'}
+            : 'Only an address your clinic invited gets in. Sessions last an hour.'}
         </p>
       </form>
     </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { readCookie } from '@/lib/cookies';
+import { NOT_LINKED, resolveHome } from '@/lib/identity';
 import { PKCE_COOKIE, supabaseUrl } from '@/lib/oauth';
 import { constantTimeEquals } from '@/lib/pkce';
 
@@ -50,6 +51,13 @@ export async function GET(request: Request): Promise<NextResponse> {
       request,
       payload.msg ?? payload.error_description ?? `Google sign-in failed (${exchange.status}).`,
     );
+  }
+
+  // Strict: Google proving the address is not enough; the clinic or family must know it too.
+  try {
+    if ((await resolveHome(payload.access_token)) === null) return failure(request, NOT_LINKED);
+  } catch {
+    return failure(request, 'The API is unreachable, so the session could not be opened.');
   }
 
   const response = NextResponse.redirect(new URL('/enter', url.origin));

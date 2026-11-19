@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
 import { readCookie } from '@/lib/cookies';
-import { apiBase, TOKEN_COOKIE } from '@/lib/session';
+import { NOT_LINKED, resolveHome } from '@/lib/identity';
+import { TOKEN_COOKIE } from '@/lib/session';
 
 /**
  * One sign-in serves two populations. The API decides which: a clinic user answers
@@ -12,29 +13,15 @@ export async function GET(request: Request): Promise<NextResponse> {
   const login = new URL('/login', request.url);
   if (!accessToken) return NextResponse.redirect(login);
 
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  const options = { headers, cache: 'no-store' as const };
-
   try {
-    const clinic = await fetch(`${apiBase()}/api/v1/auth/me`, options);
-    if (clinic.ok) {
-      const me = (await clinic.json().catch(() => ({}))) as { role?: string };
-      const homes: Record<string, string> = {
-        owner: '/admin',
-        doctor: '/doctor',
-        receptionist: '/frontdesk',
-      };
-      return NextResponse.redirect(new URL(homes[me.role ?? ''] ?? '/login', request.url));
-    }
+    const home = await resolveHome(accessToken);
+    if (home) return NextResponse.redirect(new URL(home, request.url));
 
-    const parent = await fetch(`${apiBase()}/api/v1/portal/me`, options);
-    if (parent.ok) return NextResponse.redirect(new URL('/portal', request.url));
-
-    login.searchParams.set(
-      'error',
-      'Signed in, but neither a clinic user nor a pet profile matches this address yet.',
-    );
-    return NextResponse.redirect(login);
+    // Strict: an unlinked identity keeps no local session, so /login cannot bounce back here.
+    login.searchParams.set('error', NOT_LINKED);
+    const response = NextResponse.redirect(login);
+    response.cookies.set(TOKEN_COOKIE, '', { httpOnly: true, path: '/', maxAge: 0 });
+    return response;
   } catch {
     login.searchParams.set('error', 'The API is unreachable, so the session could not be routed.');
     return NextResponse.redirect(login);

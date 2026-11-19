@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+import { invitationFor, NOT_LINKED, resolveHome } from '@/lib/identity';
+
 const COOKIE = 'pc_token';
 
 function supabase(): { url: string; anonKey: string } | null {
@@ -22,6 +24,24 @@ function reason(payload: SupabaseError, status: number): string {
   const text = payload.msg ?? payload.error_description ?? payload.message ?? payload.error;
   if (text) return text;
   return `Supabase refused the request (${status}).`;
+}
+
+/**
+ * Strict gate: a Supabase identity alone opens nothing. The address must already be on
+ * a clinic's staff list or a family's portal account, or no cookie is written.
+ */
+async function openSession(accessToken: string, expiresIn?: number): Promise<NextResponse> {
+  try {
+    if ((await resolveHome(accessToken)) === null) {
+      return NextResponse.json({ error: NOT_LINKED }, { status: 403 });
+    }
+  } catch {
+    return NextResponse.json(
+      { error: 'PawCare could not reach its records, so the session was not opened. Try again.' },
+      { status: 503 },
+    );
+  }
+  return withCookie(NextResponse.json({ ok: true, signedIn: true }), accessToken, expiresIn);
 }
 
 function withCookie(response: NextResponse, accessToken: string, expiresIn?: number): NextResponse {
@@ -57,6 +77,29 @@ export async function POST(request: Request) {
   }
 
   if (body.mode === 'signup') {
+    // Refuse before creating anything: an uninvited address must not leave an auth account.
+    let invited = false;
+    try {
+      invited = (await invitationFor(body.email)).invited;
+    } catch {
+      return NextResponse.json(
+        {
+          error:
+            'The invite list is unreachable, so no account was created. Try again in a moment.',
+        },
+        { status: 503 },
+      );
+    }
+    if (!invited) {
+      return NextResponse.json(
+        {
+          error:
+            "That address isn't on a clinic invite list yet. Ask your clinic to invite it first.",
+        },
+        { status: 403 },
+      );
+    }
+
     const response = await fetch(`${config.url}/auth/v1/signup`, {
       method: 'POST',
       headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
@@ -71,7 +114,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: reason(payload, response.status) }, { status: 400 });
     }
     if (payload.access_token) {
-      return withCookie(NextResponse.json({ ok: true, signedIn: true }), payload.access_token, payload.expires_in);
+      return openSession(payload.access_token, payload.expires_in);
     }
     return NextResponse.json({
       ok: true,
@@ -104,7 +147,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Supabase returned no token.' }, { status: 502 });
   }
 
-  return withCookie(NextResponse.json({ ok: true, signedIn: true }), payload.access_token, payload.expires_in);
+  return openSession(payload.access_token, payload.expires_in);
 }
 
 export async function DELETE() {
