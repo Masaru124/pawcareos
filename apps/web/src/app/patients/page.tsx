@@ -81,13 +81,12 @@ export default async function PatientsPage({
         </div>
       </div>
 
-      <form action="/patients" method="get" style={{ marginTop: 24, display: 'flex', gap: 10 }}>
+      <form action="/patients" method="get" className="search-form">
         <input
           name="q"
           defaultValue={query}
           placeholder="Bruno, 4321, 98102…"
           minLength={2}
-          style={{ flex: 1 }}
           aria-label="Search patients"
         />
         <button className="button" type="submit">

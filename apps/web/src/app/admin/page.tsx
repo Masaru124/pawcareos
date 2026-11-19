@@ -184,6 +184,7 @@ export default async function AdminPage() {
       </section>
 
       <div className="board">
+        <div className="side-stack">
         <section className="panel">
           <div className="panel-head">
             <h2>Today</h2>
@@ -248,8 +249,7 @@ export default async function AdminPage() {
           )}
         </section>
 
-        <div className="side-stack">
-          <section className="panel">
+        <section className="panel">
             <div className="panel-head">
               <h3>Team</h3>
               <span className="fine">{overview.staff.length}</span>
@@ -274,7 +274,9 @@ export default async function AdminPage() {
               ))}
             </ul>
           </section>
+        </div>
 
+        <div className="side-stack">
           <section className="panel">
             <div className="panel-head">
               <h3>Invite a colleague</h3>

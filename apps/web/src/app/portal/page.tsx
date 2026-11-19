@@ -135,7 +135,7 @@ export default async function PortalPage() {
               <ul className="day-list">
                 {me.pets.map((pet) => (
                   <li key={pet.id} className="slot large">
-                    <time>{pet.name.slice(0, 2).toUpperCase()}</time>
+                    <time>{pet.name.slice(0, 1).toUpperCase()}</time>
                     <div className="slot-main">
                       <strong>{pet.name}</strong>
                       <div className="slot-sub">

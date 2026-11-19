@@ -81,6 +81,7 @@ export default async function DoctorPage() {
   }
 
   const day = (await response.json()) as DoctorDay;
+  const given = principal.name.replace(/^dr\.?\s+/i, '').split(' ')[0];
   const next = day.next_up;
   const watch = day.appointments.filter(
     (slot) =>
@@ -93,7 +94,7 @@ export default async function DoctorPage() {
       <header className="page-head">
         <div>
           <p className="eyebrow">Doctor · clinical day</p>
-          <h1>Your day, {principal.name.split(' ')[0]}.</h1>
+          <h1>Your day, {given}.</h1>
           <div className="meta-line">
             <span>{longDate(day.date)}</span>
             <span className="dot-sep" aria-hidden="true" />
@@ -149,8 +150,8 @@ export default async function DoctorPage() {
                 on your list.
               </p>
               <div className="empty-actions">
-                <Link className="button ghost small" href="/frontdesk">
-                  Front desk board
+                <Link className="button ghost small" href="/patients">
+                  Open the patient directory
                 </Link>
               </div>
             </div>
@@ -256,7 +257,7 @@ export default async function DoctorPage() {
                 <p className="eyebrow">Next up</p>
                 <h2>Day is clear</h2>
                 <p className="muted" style={{ marginTop: 8, fontSize: 14 }}>
-                  Nothing is waiting. The front desk board shows who might walk in.
+                  Nothing is waiting. Your next booking will appear here with the pet’s notes.
                 </p>
               </div>
             </section>

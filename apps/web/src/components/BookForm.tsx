@@ -133,7 +133,7 @@ export function BookForm({
         <input id="breed" name="breed" maxLength={100} />
       </div>
       <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-        <input type="checkbox" name="consent" defaultChecked style={{ width: 18, height: 18 }} />
+        <input type="checkbox" name="consent" defaultChecked />
         <span className="fine">
           Send appointment reminders on WhatsApp. Reply STOP any time.
         </span>

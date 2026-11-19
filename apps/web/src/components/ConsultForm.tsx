@@ -195,7 +195,6 @@ export function ConsultForm({ patientId, patientName }: { patientId: string; pat
             type="checkbox"
             checked={giveVaccine}
             onChange={(event) => setGiveVaccine(event.target.checked)}
-            style={{ width: 18, height: 18 }}
           />
           A vaccine was given today
         </label>

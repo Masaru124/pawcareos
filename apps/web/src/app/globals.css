@@ -458,6 +458,24 @@ textarea {
   resize: vertical;
 }
 
+input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--green);
+}
+
+.search-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.search-form input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .stack {
   display: flex;
   flex-direction: column;

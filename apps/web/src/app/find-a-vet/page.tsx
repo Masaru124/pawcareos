@@ -78,13 +78,12 @@ export default async function FindAVetPage({
         the same step.
       </p>
 
-      <form action="/find-a-vet" method="get" style={{ marginTop: 24, display: 'flex', gap: 10 }}>
+      <form action="/find-a-vet" method="get" className="search-form">
         <input
           name="q"
           defaultValue={query}
           placeholder="Vet, clinic or city"
           minLength={2}
-          style={{ flex: 1 }}
           aria-label="Search vets"
         />
         <button className="button" type="submit">
