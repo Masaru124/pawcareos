@@ -1,0 +1,3195 @@
+{
+  "components": {
+    "schemas": {
+      "ActivityOut": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "actor_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Name"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "subject_type": {
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "subject_type",
+          "created_at",
+          "actor_name"
+        ],
+        "title": "ActivityOut",
+        "type": "object"
+      },
+      "AdminCountsOut": {
+        "properties": {
+          "appointments_today": {
+            "title": "Appointments Today",
+            "type": "integer"
+          },
+          "doctors": {
+            "title": "Doctors",
+            "type": "integer"
+          },
+          "online_today": {
+            "title": "Online Today",
+            "type": "integer"
+          },
+          "overdue_vaccines": {
+            "title": "Overdue Vaccines",
+            "type": "integer"
+          },
+          "patients": {
+            "title": "Patients",
+            "type": "integer"
+          },
+          "staff": {
+            "title": "Staff",
+            "type": "integer"
+          },
+          "upcoming_week": {
+            "title": "Upcoming Week",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "patients",
+          "appointments_today",
+          "online_today",
+          "upcoming_week",
+          "overdue_vaccines",
+          "doctors",
+          "staff"
+        ],
+        "title": "AdminCountsOut",
+        "type": "object"
+      },
+      "AdminOverviewOut": {
+        "properties": {
+          "activity": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityOut"
+            },
+            "title": "Activity",
+            "type": "array"
+          },
+          "clinic": {
+            "$ref": "#/components/schemas/ClinicAdminOut"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AdminCountsOut"
+          },
+          "staff": {
+            "items": {
+              "$ref": "#/components/schemas/StaffOut"
+            },
+            "title": "Staff",
+            "type": "array"
+          }
+        },
+        "required": [
+          "clinic",
+          "counts",
+          "staff",
+          "activity"
+        ],
+        "title": "AdminOverviewOut",
+        "type": "object"
+      },
+      "AppointmentOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "patient_id": {
+            "format": "uuid",
+            "title": "Patient Id",
+            "type": "string"
+          },
+          "patient_name": {
+            "title": "Patient Name",
+            "type": "string"
+          },
+          "room_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Url"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "starts_at": {
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "starts_at",
+          "patient_id",
+          "patient_name",
+          "passport_slug",
+          "status",
+          "source",
+          "mode",
+          "room_url"
+        ],
+        "title": "AppointmentOut",
+        "type": "object"
+      },
+      "AvailabilityOut": {
+        "properties": {
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          },
+          "mode": {
+            "default": "in_clinic",
+            "title": "Mode",
+            "type": "string"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/SlotOut"
+            },
+            "title": "Slots",
+            "type": "array"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "day",
+          "timezone",
+          "slots"
+        ],
+        "title": "AvailabilityOut",
+        "type": "object"
+      },
+      "BadgeOut": {
+        "properties": {
+          "doctor_name": {
+            "title": "Doctor Name",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "valid_until": {
+            "title": "Valid Until",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "valid_until",
+          "state",
+          "doctor_name"
+        ],
+        "title": "BadgeOut",
+        "type": "object"
+      },
+      "BookingIn": {
+        "properties": {
+          "consent": {
+            "default": true,
+            "title": "Consent",
+            "type": "boolean"
+          },
+          "doctor_id": {
+            "format": "uuid",
+            "title": "Doctor Id",
+            "type": "string"
+          },
+          "mode": {
+            "default": "in_clinic",
+            "title": "Mode",
+            "type": "string"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/BookingParentIn"
+          },
+          "patient": {
+            "$ref": "#/components/schemas/BookingPatientIn"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "doctor_id",
+          "starts_at",
+          "parent",
+          "patient"
+        ],
+        "title": "BookingIn",
+        "type": "object"
+      },
+      "BookingOut": {
+        "properties": {
+          "appointment_id": {
+            "format": "uuid",
+            "title": "Appointment Id",
+            "type": "string"
+          },
+          "clinic_name": {
+            "title": "Clinic Name",
+            "type": "string"
+          },
+          "doctor_name": {
+            "title": "Doctor Name",
+            "type": "string"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "passport_url": {
+            "title": "Passport Url",
+            "type": "string"
+          },
+          "reminders_queued": {
+            "title": "Reminders Queued",
+            "type": "integer"
+          },
+          "room_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Url"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "appointment_id",
+          "starts_at",
+          "clinic_name",
+          "doctor_name",
+          "passport_slug",
+          "passport_url",
+          "reminders_queued",
+          "mode",
+          "room_url"
+        ],
+        "title": "BookingOut",
+        "type": "object"
+      },
+      "BookingParentIn": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "full_name": {
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "phone": {
+            "pattern": "^\\+[1-9]\\d{9,14}$",
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "phone"
+        ],
+        "title": "BookingParentIn",
+        "type": "object"
+      },
+      "BookingPatientIn": {
+        "properties": {
+          "breed": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "gender": {
+            "default": "Unknown",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Gender",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "species": {
+            "default": "Canine",
+            "maxLength": 50,
+            "minLength": 2,
+            "title": "Species",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "BookingPatientIn",
+        "type": "object"
+      },
+      "ClinicAdminOut": {
+        "properties": {
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "closes_at": {
+            "title": "Closes At",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "opens_at": {
+            "title": "Opens At",
+            "type": "string"
+          },
+          "phone": {
+            "title": "Phone",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "city",
+          "address",
+          "phone",
+          "timezone",
+          "opens_at",
+          "closes_at"
+        ],
+        "title": "ClinicAdminOut",
+        "type": "object"
+      },
+      "ClinicOut": {
+        "properties": {
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "phone": {
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "city",
+          "address",
+          "phone"
+        ],
+        "title": "ClinicOut",
+        "type": "object"
+      },
+      "ClinicRefOut": {
+        "properties": {
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "phone": {
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "address",
+          "phone"
+        ],
+        "title": "ClinicRefOut",
+        "type": "object"
+      },
+      "ConsentIn": {
+        "properties": {
+          "granted": {
+            "title": "Granted",
+            "type": "boolean"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ConsentSource",
+            "default": "intake_tap"
+          }
+        },
+        "required": [
+          "granted"
+        ],
+        "title": "ConsentIn",
+        "type": "object"
+      },
+      "ConsentSource": {
+        "enum": [
+          "intake_tap",
+          "receptionist_script",
+          "whatsapp_reply",
+          "web_form"
+        ],
+        "title": "ConsentSource",
+        "type": "string"
+      },
+      "ConsultIn": {
+        "properties": {
+          "dietary_advice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dietary Advice"
+          },
+          "medications": {
+            "items": {
+              "$ref": "#/components/schemas/MedicationIn"
+            },
+            "title": "Medications",
+            "type": "array"
+          },
+          "patient_id": {
+            "format": "uuid",
+            "title": "Patient Id",
+            "type": "string"
+          },
+          "provisional_diagnosis": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Provisional Diagnosis",
+            "type": "string"
+          },
+          "special_instructions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Special Instructions"
+          },
+          "symptoms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symptoms"
+          },
+          "temperature_f": {
+            "anyOf": [
+              {
+                "maximum": 115.0,
+                "minimum": 90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature F"
+          },
+          "vaccinations": {
+            "items": {
+              "$ref": "#/components/schemas/VaccinationIn"
+            },
+            "title": "Vaccinations",
+            "type": "array"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "maximum": 200.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          }
+        },
+        "required": [
+          "patient_id",
+          "provisional_diagnosis"
+        ],
+        "title": "ConsultIn",
+        "type": "object"
+      },
+      "ConsultOut": {
+        "properties": {
+          "consultation_id": {
+            "format": "uuid",
+            "title": "Consultation Id",
+            "type": "string"
+          },
+          "passport_url": {
+            "title": "Passport Url",
+            "type": "string"
+          },
+          "rx_code": {
+            "title": "Rx Code",
+            "type": "string"
+          },
+          "whatsapp_status": {
+            "title": "Whatsapp Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "consultation_id",
+          "rx_code",
+          "passport_url",
+          "whatsapp_status"
+        ],
+        "title": "ConsultOut",
+        "type": "object"
+      },
+      "DoctorOut": {
+        "properties": {
+          "clinic": {
+            "$ref": "#/components/schemas/ClinicOut"
+          },
+          "doctor_id": {
+            "format": "uuid",
+            "title": "Doctor Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "qualification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualification"
+          },
+          "vci_suffix": {
+            "title": "Vci Suffix",
+            "type": "string"
+          }
+        },
+        "required": [
+          "doctor_id",
+          "full_name",
+          "qualification",
+          "vci_suffix",
+          "clinic"
+        ],
+        "title": "DoctorOut",
+        "type": "object"
+      },
+      "DrainResult": {
+        "properties": {
+          "dead": {
+            "title": "Dead",
+            "type": "integer"
+          },
+          "failed": {
+            "title": "Failed",
+            "type": "integer"
+          },
+          "sent": {
+            "title": "Sent",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sent",
+          "failed",
+          "dead"
+        ],
+        "title": "DrainResult",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "IntakeIn": {
+        "properties": {
+          "consent": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConsentIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parent": {
+            "$ref": "#/components/schemas/ParentIn"
+          },
+          "patient": {
+            "$ref": "#/components/schemas/PatientIn"
+          }
+        },
+        "required": [
+          "parent",
+          "patient"
+        ],
+        "title": "IntakeIn",
+        "type": "object"
+      },
+      "IntakeOut": {
+        "properties": {
+          "parent_id": {
+            "format": "uuid",
+            "title": "Parent Id",
+            "type": "string"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "patient_id": {
+            "format": "uuid",
+            "title": "Patient Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_id",
+          "patient_id",
+          "passport_slug"
+        ],
+        "title": "IntakeOut",
+        "type": "object"
+      },
+      "MeOut": {
+        "properties": {
+          "clinic_id": {
+            "format": "uuid",
+            "title": "Clinic Id",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        },
+        "required": [
+          "id",
+          "clinic_id",
+          "role",
+          "full_name"
+        ],
+        "title": "MeOut",
+        "type": "object"
+      },
+      "MedicationIn": {
+        "properties": {
+          "dosage": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Dosage",
+            "type": "string"
+          },
+          "duration_days": {
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Duration Days",
+            "type": "integer"
+          },
+          "frequency": {
+            "maxLength": 50,
+            "minLength": 2,
+            "title": "Frequency",
+            "type": "string"
+          },
+          "is_chronic": {
+            "default": false,
+            "title": "Is Chronic",
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "route": {
+            "default": "Oral",
+            "maxLength": 50,
+            "title": "Route",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "dosage",
+          "frequency",
+          "duration_days"
+        ],
+        "title": "MedicationIn",
+        "type": "object"
+      },
+      "ParentIn": {
+        "properties": {
+          "full_name": {
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "phone": {
+            "pattern": "^\\+[1-9]\\d{9,14}$",
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "phone"
+        ],
+        "title": "ParentIn",
+        "type": "object"
+      },
+      "ParentInviteIn": {
+        "properties": {
+          "email": {
+            "maxLength": 255,
+            "minLength": 5,
+            "title": "Email",
+            "type": "string"
+          },
+          "parent_phone": {
+            "pattern": "^\\+[1-9]\\d{9,14}$",
+            "title": "Parent Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_phone",
+          "email"
+        ],
+        "title": "ParentInviteIn",
+        "type": "object"
+      },
+      "ParentInviteOut": {
+        "properties": {
+          "already_claimed": {
+            "title": "Already Claimed",
+            "type": "boolean"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "parent_name": {
+            "title": "Parent Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_name",
+          "email",
+          "already_claimed"
+        ],
+        "title": "ParentInviteOut",
+        "type": "object"
+      },
+      "PassportView": {
+        "properties": {
+          "badges": {
+            "items": {
+              "$ref": "#/components/schemas/BadgeOut"
+            },
+            "title": "Badges",
+            "type": "array"
+          },
+          "clinic": {
+            "$ref": "#/components/schemas/ClinicRefOut"
+          },
+          "pet": {
+            "$ref": "#/components/schemas/PetOut"
+          },
+          "prescriptions": {
+            "items": {
+              "$ref": "#/components/schemas/PrescriptionRefOut"
+            },
+            "title": "Prescriptions",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pet",
+          "status",
+          "badges",
+          "prescriptions",
+          "clinic"
+        ],
+        "title": "PassportView",
+        "type": "object"
+      },
+      "PatientIn": {
+        "properties": {
+          "breed": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "dob": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dob"
+          },
+          "dob_is_approximate": {
+            "default": false,
+            "title": "Dob Is Approximate",
+            "type": "boolean"
+          },
+          "gender": {
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Gender",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "species": {
+            "maxLength": 50,
+            "minLength": 2,
+            "title": "Species",
+            "type": "string"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "maximum": 200.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          }
+        },
+        "required": [
+          "name",
+          "species",
+          "gender"
+        ],
+        "title": "PatientIn",
+        "type": "object"
+      },
+      "PatientListOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PatientSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PatientListOut",
+        "type": "object"
+      },
+      "PatientOut": {
+        "properties": {
+          "breed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "dob": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dob"
+          },
+          "gender": {
+            "title": "Gender",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "species": {
+            "title": "Species",
+            "type": "string"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "species",
+          "breed",
+          "gender",
+          "dob",
+          "weight_kg",
+          "passport_slug"
+        ],
+        "title": "PatientOut",
+        "type": "object"
+      },
+      "PatientSummary": {
+        "properties": {
+          "breed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Name"
+          },
+          "parent_phone_suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Phone Suffix"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "species": {
+            "title": "Species",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "species",
+          "breed",
+          "passport_slug"
+        ],
+        "title": "PatientSummary",
+        "type": "object"
+      },
+      "PetOut": {
+        "properties": {
+          "age_label": {
+            "title": "Age Label",
+            "type": "string"
+          },
+          "breed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "microchip_masked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Microchip Masked"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "sex_label": {
+            "title": "Sex Label",
+            "type": "string"
+          },
+          "species": {
+            "title": "Species",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "species",
+          "breed",
+          "age_label",
+          "sex_label",
+          "microchip_masked",
+          "passport_slug"
+        ],
+        "title": "PetOut",
+        "type": "object"
+      },
+      "PetRecordsOut": {
+        "properties": {
+          "breed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "clinic_name": {
+            "title": "Clinic Name",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "pet_id": {
+            "format": "uuid",
+            "title": "Pet Id",
+            "type": "string"
+          },
+          "prescriptions": {
+            "items": {
+              "$ref": "#/components/schemas/RecordPrescriptionOut"
+            },
+            "title": "Prescriptions",
+            "type": "array"
+          },
+          "species": {
+            "title": "Species",
+            "type": "string"
+          },
+          "vaccines": {
+            "items": {
+              "$ref": "#/components/schemas/RecordVaccineOut"
+            },
+            "title": "Vaccines",
+            "type": "array"
+          }
+        },
+        "required": [
+          "pet_id",
+          "name",
+          "species",
+          "breed",
+          "passport_slug",
+          "clinic_name",
+          "vaccines",
+          "prescriptions"
+        ],
+        "title": "PetRecordsOut",
+        "type": "object"
+      },
+      "PortalAppointmentOut": {
+        "properties": {
+          "clinic_name": {
+            "title": "Clinic Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mode": {
+            "default": "in_clinic",
+            "title": "Mode",
+            "type": "string"
+          },
+          "patient_name": {
+            "title": "Patient Name",
+            "type": "string"
+          },
+          "room_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Url"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "starts_at",
+          "patient_name",
+          "clinic_name",
+          "status"
+        ],
+        "title": "PortalAppointmentOut",
+        "type": "object"
+      },
+      "PortalMeOut": {
+        "properties": {
+          "parent_name": {
+            "title": "Parent Name",
+            "type": "string"
+          },
+          "pets": {
+            "items": {
+              "$ref": "#/components/schemas/PortalPetOut"
+            },
+            "title": "Pets",
+            "type": "array"
+          },
+          "phone_suffix": {
+            "title": "Phone Suffix",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_name",
+          "phone_suffix",
+          "pets"
+        ],
+        "title": "PortalMeOut",
+        "type": "object"
+      },
+      "PortalPetOut": {
+        "properties": {
+          "breed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breed"
+          },
+          "clinic_name": {
+            "title": "Clinic Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "next_due": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Due"
+          },
+          "passport_slug": {
+            "title": "Passport Slug",
+            "type": "string"
+          },
+          "species": {
+            "title": "Species",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "species",
+          "breed",
+          "passport_slug",
+          "clinic_name",
+          "next_due"
+        ],
+        "title": "PortalPetOut",
+        "type": "object"
+      },
+      "PrescriptionRefOut": {
+        "properties": {
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "doctor_name": {
+            "title": "Doctor Name",
+            "type": "string"
+          },
+          "rx_code": {
+            "title": "Rx Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "doctor_name",
+          "rx_code"
+        ],
+        "title": "PrescriptionRefOut",
+        "type": "object"
+      },
+      "RecallRunOut": {
+        "properties": {
+          "created": {
+            "title": "Created",
+            "type": "integer"
+          },
+          "enqueued": {
+            "title": "Enqueued",
+            "type": "integer"
+          },
+          "suppressed": {
+            "title": "Suppressed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "created",
+          "enqueued",
+          "suppressed"
+        ],
+        "title": "RecallRunOut",
+        "type": "object"
+      },
+      "RecordItemOut": {
+        "properties": {
+          "dosage_form": {
+            "title": "Dosage Form",
+            "type": "string"
+          },
+          "dosage_strength": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dosage Strength"
+          },
+          "duration_days": {
+            "title": "Duration Days",
+            "type": "integer"
+          },
+          "frequency": {
+            "title": "Frequency",
+            "type": "string"
+          },
+          "is_chronic": {
+            "title": "Is Chronic",
+            "type": "boolean"
+          },
+          "medication_name": {
+            "title": "Medication Name",
+            "type": "string"
+          },
+          "route": {
+            "title": "Route",
+            "type": "string"
+          }
+        },
+        "required": [
+          "medication_name",
+          "dosage_form",
+          "dosage_strength",
+          "frequency",
+          "duration_days",
+          "route",
+          "is_chronic"
+        ],
+        "title": "RecordItemOut",
+        "type": "object"
+      },
+      "RecordPrescriptionOut": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "diagnosis": {
+            "title": "Diagnosis",
+            "type": "string"
+          },
+          "doctor_name": {
+            "title": "Doctor Name",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RecordItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "rx_code": {
+            "title": "Rx Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rx_code",
+          "date",
+          "doctor_name",
+          "diagnosis",
+          "items"
+        ],
+        "title": "RecordPrescriptionOut",
+        "type": "object"
+      },
+      "RecordVaccineOut": {
+        "properties": {
+          "administered_date": {
+            "format": "date",
+            "title": "Administered Date",
+            "type": "string"
+          },
+          "batch_number": {
+            "title": "Batch Number",
+            "type": "string"
+          },
+          "brand_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Name"
+          },
+          "doctor_name": {
+            "title": "Doctor Name",
+            "type": "string"
+          },
+          "next_due_date": {
+            "format": "date",
+            "title": "Next Due Date",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "vaccine_name": {
+            "title": "Vaccine Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "vaccine_name",
+          "brand_name",
+          "batch_number",
+          "administered_date",
+          "next_due_date",
+          "status",
+          "doctor_name"
+        ],
+        "title": "RecordVaccineOut",
+        "type": "object"
+      },
+      "RoomOut": {
+        "properties": {
+          "appointment_id": {
+            "format": "uuid",
+            "title": "Appointment Id",
+            "type": "string"
+          },
+          "clinic_name": {
+            "title": "Clinic Name",
+            "type": "string"
+          },
+          "doctor_name": {
+            "title": "Doctor Name",
+            "type": "string"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "patient_name": {
+            "title": "Patient Name",
+            "type": "string"
+          },
+          "room_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Url"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "appointment_id",
+          "starts_at",
+          "mode",
+          "room_url",
+          "clinic_name",
+          "doctor_name",
+          "patient_name"
+        ],
+        "title": "RoomOut",
+        "type": "object"
+      },
+      "SimulateTapIn": {
+        "properties": {
+          "action": {
+            "default": "confirm",
+            "title": "Action",
+            "type": "string"
+          },
+          "recall_job_id": {
+            "format": "uuid",
+            "title": "Recall Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recall_job_id"
+        ],
+        "title": "SimulateTapIn",
+        "type": "object"
+      },
+      "SlotOut": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "starts_at",
+          "label"
+        ],
+        "title": "SlotOut",
+        "type": "object"
+      },
+      "StaffInviteIn": {
+        "properties": {
+          "email": {
+            "maxLength": 255,
+            "minLength": 5,
+            "title": "Email",
+            "type": "string"
+          },
+          "full_name": {
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole",
+            "default": "receptionist"
+          },
+          "vci_registration_no": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vci Registration No"
+          }
+        },
+        "required": [
+          "full_name",
+          "email"
+        ],
+        "title": "StaffInviteIn",
+        "type": "object"
+      },
+      "StaffOut": {
+        "properties": {
+          "claimed": {
+            "title": "Claimed",
+            "type": "boolean"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "vci_suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vci Suffix"
+          }
+        },
+        "required": [
+          "id",
+          "full_name",
+          "email",
+          "role",
+          "claimed",
+          "is_active",
+          "vci_suffix"
+        ],
+        "title": "StaffOut",
+        "type": "object"
+      },
+      "UserRole": {
+        "enum": [
+          "owner",
+          "doctor",
+          "receptionist"
+        ],
+        "title": "UserRole",
+        "type": "string"
+      },
+      "VaccinationIn": {
+        "properties": {
+          "batch_number": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Batch Number",
+            "type": "string"
+          },
+          "brand_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Name"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/VaccineKind"
+          },
+          "vaccine_name": {
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Vaccine Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "vaccine_name",
+          "batch_number"
+        ],
+        "title": "VaccinationIn",
+        "type": "object"
+      },
+      "VaccineKind": {
+        "enum": [
+          "rabies",
+          "dhppil",
+          "deworming",
+          "tricat",
+          "kennel_cough"
+        ],
+        "title": "VaccineKind",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "title": "PawCare OS API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/admin/overview": {
+      "get": {
+        "description": "Owner-only. One request answers 'how is the clinic doing today'.",
+        "operationId": "overview_api_v1_admin_overview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOverviewOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Overview",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/staff": {
+      "post": {
+        "description": "An owner adds a colleague. The first verified sign-in claims the row.",
+        "operationId": "invite_staff_api_v1_admin_staff_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffInviteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Invite Staff",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/appointments": {
+      "get": {
+        "operationId": "list_appointments_api_v1_appointments_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "on",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "On"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AppointmentOut"
+                  },
+                  "title": "Response List Appointments Api V1 Appointments Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Appointments",
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "me_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/consults": {
+      "post": {
+        "operationId": "create_consult_api_v1_consults_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 8,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsultIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Consult",
+        "tags": [
+          "consults"
+        ]
+      }
+    },
+    "/api/v1/directory/bookings": {
+      "post": {
+        "description": "Anyone can book; only a clinic user can prescribe.",
+        "operationId": "create_booking_api_v1_directory_bookings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Booking",
+        "tags": [
+          "directory"
+        ]
+      }
+    },
+    "/api/v1/directory/doctors": {
+      "get": {
+        "description": "Public: verified vets only, no clinic-internal identifiers.",
+        "operationId": "list_doctors_api_v1_directory_doctors_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 60,
+                  "minLength": 2,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 60,
+                  "minLength": 2,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DoctorOut"
+                  },
+                  "title": "Response List Doctors Api V1 Directory Doctors Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Doctors",
+        "tags": [
+          "directory"
+        ]
+      }
+    },
+    "/api/v1/directory/doctors/{doctor_id}/availability": {
+      "get": {
+        "operationId": "doctor_availability_api_v1_directory_doctors__doctor_id__availability_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "doctor_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Doctor Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mode",
+            "required": false,
+            "schema": {
+              "default": "in_clinic",
+              "title": "Mode",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Doctor Availability",
+        "tags": [
+          "directory"
+        ]
+      }
+    },
+    "/api/v1/directory/rooms/{appointment_id}": {
+      "get": {
+        "description": "The join page needs the room and who it is for. The id is unguessable.",
+        "operationId": "get_room_api_v1_directory_rooms__appointment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "appointment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Appointment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Room",
+        "tags": [
+          "directory"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Api V1 Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/v1/ops/demo-sends": {
+      "get": {
+        "description": "What the demo sender would have delivered. Empty in live mode.",
+        "operationId": "list_demo_sends_api_v1_ops_demo_sends_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Cron-Secret",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Cron-Secret"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Demo Sends Api V1 Ops Demo Sends Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Demo Sends",
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/v1/ops/outbox": {
+      "get": {
+        "operationId": "list_outbox_api_v1_ops_outbox_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Cron-Secret",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Cron-Secret"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Outbox Api V1 Ops Outbox Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Outbox",
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/v1/ops/outbox/drain": {
+      "post": {
+        "operationId": "run_drain_api_v1_ops_outbox_drain_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Cron-Secret",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Cron-Secret"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrainResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Drain",
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/v1/ops/recalls/run": {
+      "post": {
+        "operationId": "run_recalls_api_v1_ops_recalls_run_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Cron-Secret",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Cron-Secret"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecallRunOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Recalls",
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/v1/ops/simulate-tap": {
+      "post": {
+        "description": "Demo only: stand in for a WhatsApp button tap without Meta credentials.",
+        "operationId": "simulate_tap_api_v1_ops_simulate_tap_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Cron-Secret",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Cron-Secret"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateTapIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Simulate Tap Api V1 Ops Simulate Tap Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate Tap",
+        "tags": [
+          "ops"
+        ]
+      }
+    },
+    "/api/v1/patients": {
+      "get": {
+        "operationId": "search_api_v1_patients_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 60,
+                  "minLength": 2,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientListOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search",
+        "tags": [
+          "patients"
+        ]
+      },
+      "post": {
+        "operationId": "intake_api_v1_patients_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntakeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntakeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Intake",
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/v1/patients/{patient_id}": {
+      "get": {
+        "operationId": "get_patient_api_v1_patients__patient_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patient_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patient Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Patient",
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/v1/portal/appointments": {
+      "get": {
+        "operationId": "upcoming_appointments_api_v1_portal_appointments_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PortalAppointmentOut"
+                  },
+                  "title": "Response Upcoming Appointments Api V1 Portal Appointments Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upcoming Appointments",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/v1/portal/invites": {
+      "post": {
+        "description": "Staff attach an email to a family. That address is what claims the portal account.",
+        "operationId": "invite_parent_api_v1_portal_invites_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParentInviteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentInviteOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Invite Parent",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/v1/portal/me": {
+      "get": {
+        "operationId": "me_api_v1_portal_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortalMeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/v1/portal/pets/{patient_id}/records": {
+      "get": {
+        "description": "The pet's whole record, readable only by the family that owns it.",
+        "operationId": "pet_records_api_v1_portal_pets__patient_id__records_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patient_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patient Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PetRecordsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Pet Records",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/v1/prescriptions/{rx_code}/pdf": {
+      "get": {
+        "operationId": "prescription_pdf_api_v1_prescriptions__rx_code__pdf_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rx_code",
+            "required": true,
+            "schema": {
+              "title": "Rx Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Prescription Pdf",
+        "tags": [
+          "prescriptions"
+        ]
+      }
+    },
+    "/api/v1/webhooks/whatsapp": {
+      "get": {
+        "operationId": "verify_api_v1_webhooks_whatsapp_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "hub.mode",
+            "required": true,
+            "schema": {
+              "title": "Hub.Mode",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hub.verify_token",
+            "required": true,
+            "schema": {
+              "title": "Hub.Verify Token",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hub.challenge",
+            "required": true,
+            "schema": {
+              "title": "Hub.Challenge",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify",
+        "tags": [
+          "webhooks"
+        ]
+      },
+      "post": {
+        "operationId": "receive_api_v1_webhooks_whatsapp_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Hub-Signature-256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Hub-Signature-256"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Receive Api V1 Webhooks Whatsapp Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Receive",
+        "tags": [
+          "webhooks"
+        ]
+      }
+    },
+    "/p/{slug}": {
+      "get": {
+        "operationId": "get_passport_p__slug__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Passport",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/p/{slug}/certificate.pdf": {
+      "get": {
+        "operationId": "get_certificate_p__slug__certificate_pdf_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Certificate",
+        "tags": [
+          "public"
+        ]
+      }
+    }
+  }
+}

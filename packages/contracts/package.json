@@ -1,0 +1,13 @@
+{
+  "name": "@pawcare/contracts",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.4.0"
+  }
+}

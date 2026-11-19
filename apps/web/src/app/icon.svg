@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PawCare OS">
+  <rect width="64" height="64" rx="14" fill="#143c31"/>
+  <circle cx="24" cy="25" r="4.4" fill="#f4efe2"/>
+  <circle cx="33" cy="20.5" r="4.4" fill="#f4efe2"/>
+  <circle cx="42" cy="25" r="4.4" fill="#f4efe2"/>
+  <circle cx="45.5" cy="34" r="4.1" fill="#f4efe2"/>
+  <path d="M32 30c6.4 0 11.6 4.4 11.6 9.6 0 4.3-3.5 7-8.1 7-1.6 0-2.6-.5-3.5-.5s-1.9.5-3.5.5c-4.6 0-8.1-2.7-8.1-7C20.4 34.4 25.6 30 32 30Z" fill="#f4efe2"/>
+</svg>
