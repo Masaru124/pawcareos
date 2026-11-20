@@ -7,7 +7,28 @@ const CLINIC_HOME: Record<string, string> = {
 };
 
 export const NOT_LINKED =
-  "This address isn't linked to a clinic or pet record yet. Ask your clinic to invite it, then sign in again.";
+  "This address isn't linked to a clinic or pet record yet.";
+
+/**
+ * Open a pet-parent portal for a verified address (spec 2.1 self-serve signup).
+ * Idempotent: the API returns the existing family when one is already attached.
+ */
+export async function ensureParentProfile(
+  accessToken: string,
+  profile: { full_name: string; phone: string },
+): Promise<boolean> {
+  const response = await fetch(`${apiBase()}/api/v1/auth/parent`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(profile),
+    cache: 'no-store',
+  });
+  if (response.status >= 500) throw new Error(`Parent signup failed (${response.status})`);
+  return response.ok;
+}
 
 /**
  * Which door this verified session opens. The API decides; the web only routes.

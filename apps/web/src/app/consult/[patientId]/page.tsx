@@ -43,7 +43,7 @@ export default async function ConsultPage({
       <Link className="fine" href="/enter">
         ← Back to my day
       </Link>
-      <p className="eyebrow" style={{ marginTop: 18 }}>
+      <p className="label" style={{ marginTop: 18 }}>
         Consult · {patient.species}
         {patient.breed ? ` · ${patient.breed}` : ''}
       </p>

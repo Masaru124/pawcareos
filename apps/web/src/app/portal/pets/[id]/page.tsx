@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { ErrorPanel } from '@/components/ErrorPanel';
+import { DeleteRecordButton } from '@/components/DeleteRecordButton';
+import { LegacyRecordUpload } from '@/components/LegacyRecordUpload';
 import { apiDetail, authorisedFetch, readJson } from '@/lib/session';
 
 type Records = {
@@ -35,6 +37,23 @@ type Records = {
       is_chronic: boolean;
     }[];
   }[];
+  legacy_records: {
+    id: string;
+    record_type: string;
+    description: string | null;
+    file_name: string;
+    content_type: string;
+    size_bytes: number;
+    uploaded_at: string;
+  }[];
+};
+
+const RECORD_LABELS: Record<string, string> = {
+  VACCINE_CARD: 'Vaccine card',
+  EXTERNAL_RX: "Another clinic's prescription",
+  LAB_REPORT: 'Lab report',
+  XRAY: 'X-ray or scan',
+  OTHER: 'Uploaded record',
 };
 
 function pretty(value: string): string {
@@ -75,7 +94,7 @@ export default async function PetRecordsPage({ params }: { params: Promise<{ id:
 
   return (
     <main className="wrap" style={{ paddingTop: 44, maxWidth: 820 }}>
-      <p className="eyebrow">Digital health record · {records.clinic_name}</p>
+      <p className="label">Digital health record · {records.clinic_name}</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.7rem)' }}>{records.name}</h1>
@@ -95,7 +114,7 @@ export default async function PetRecordsPage({ params }: { params: Promise<{ id:
       </div>
 
       <section style={{ marginTop: 30 }}>
-        <p className="eyebrow">Vaccinations ({records.vaccines.length})</p>
+        <p className="label">Vaccinations ({records.vaccines.length})</p>
         {records.vaccines.length === 0 ? (
           <p className="muted">No vaccines recorded yet.</p>
         ) : (
@@ -130,7 +149,7 @@ export default async function PetRecordsPage({ params }: { params: Promise<{ id:
       </section>
 
       <section style={{ marginTop: 32 }}>
-        <p className="eyebrow">Prescriptions ({records.prescriptions.length})</p>
+        <p className="label">Prescriptions ({records.prescriptions.length})</p>
         {records.prescriptions.length === 0 ? (
           <p className="muted">No prescriptions yet.</p>
         ) : (
@@ -165,6 +184,59 @@ export default async function PetRecordsPage({ params }: { params: Promise<{ id:
             ))}
           </div>
         )}
+      </section>
+
+      <section style={{ marginTop: 32 }}>
+        <p className="label">From your files ({records.legacy_records.length})</p>
+        <p className="fine" style={{ marginTop: 4 }}>
+          Paper records you photographed yourself. {records.clinic_name} sees them in this pet’s file,
+          but they stay unverified until a vet checks them.
+        </p>
+
+        {records.legacy_records.length > 0 && (
+          <div className="card" style={{ marginTop: 12, overflow: 'hidden' }}>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {records.legacy_records.map((record, index) => (
+                <li
+                  key={record.id}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: 14,
+                    padding: '15px 22px',
+                    borderTop: index === 0 ? 'none' : '1px solid var(--line)',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <div style={{ flex: '1 1 220px' }}>
+                    <p style={{ fontWeight: 500 }}>
+                      <a
+                        href={`/api/portal/pets/${records.pet_id}/records/${record.id}/file`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {RECORD_LABELS[record.record_type] ?? record.record_type}
+                      </a>
+                    </p>
+                    <p className="fine">
+                      {record.description ? `${record.description} · ` : ''}
+                      {record.file_name} · {Math.max(1, Math.round(record.size_bytes / 1024))} KB
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span className="pill due_soon">unverified</span>
+                    <DeleteRecordButton petId={records.pet_id} recordId={record.id} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="card" style={{ padding: '22px 22px', marginTop: 14 }}>
+          <p className="label">Add a paper record</p>
+          <LegacyRecordUpload petId={records.pet_id} />
+        </div>
       </section>
     </main>
   );

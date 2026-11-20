@@ -60,6 +60,18 @@ class RecordPrescriptionOut(BaseModel):
     items: list[RecordItemOut]
 
 
+class LegacyRecordOut(BaseModel):
+    """A record the family uploaded. Always shown as unverified."""
+
+    id: uuid.UUID
+    record_type: str
+    description: str | None
+    file_name: str
+    content_type: str
+    size_bytes: int
+    uploaded_at: datetime
+
+
 class PetRecordsOut(BaseModel):
     pet_id: uuid.UUID
     name: str
@@ -69,6 +81,7 @@ class PetRecordsOut(BaseModel):
     clinic_name: str
     vaccines: list[RecordVaccineOut]
     prescriptions: list[RecordPrescriptionOut]
+    legacy_records: list[LegacyRecordOut] = Field(default_factory=list)
 
 
 class ParentInviteIn(BaseModel):

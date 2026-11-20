@@ -43,8 +43,10 @@ export function StaffInviteForm() {
 
     setNotice(`${payload.staff?.full_name ?? 'Your colleague'} can now sign in as ${payload.staff?.email}.`);
     setBusy(false);
-    router.refresh();
     formElement.reset();
+    // Refresh after the notice has rendered: an immediate refresh re-creates the
+    // server tree and can wipe this component's state before anyone reads it.
+    window.setTimeout(() => router.refresh(), 1200);
   }
 
   return (

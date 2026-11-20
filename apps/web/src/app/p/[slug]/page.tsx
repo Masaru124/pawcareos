@@ -72,7 +72,7 @@ export default async function PassportPage({ params }: { params: Promise<{ slug:
 
   return (
     <main className="wrap" style={{ paddingTop: 48, maxWidth: 720 }}>
-      <p className="eyebrow">Pet passport · {passport.clinic.name}</p>
+      <p className="label">Pet passport · {passport.clinic.name}</p>
       <div className="card" style={{ padding: '32px 30px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 18, flexWrap: 'wrap' }}>
           <div>
@@ -98,13 +98,13 @@ export default async function PassportPage({ params }: { params: Promise<{ slug:
           }}
         >
           <div>
-            <p className="eyebrow" style={{ marginBottom: 6 }}>
+            <p className="label" style={{ marginBottom: 6 }}>
               Passport
             </p>
             <p className="mono">{pet.passport_slug}</p>
           </div>
           <div>
-            <p className="eyebrow" style={{ marginBottom: 6 }}>
+            <p className="label" style={{ marginBottom: 6 }}>
               Microchip
             </p>
             <p className="mono">{pet.microchip_masked ?? 'Not recorded'}</p>
@@ -112,7 +112,7 @@ export default async function PassportPage({ params }: { params: Promise<{ slug:
         </div>
 
         <div style={{ marginTop: 30 }}>
-          <p className="eyebrow">Vaccination record</p>
+          <p className="label">Vaccination record</p>
           {passport.badges.length === 0 ? (
             <p className="muted">
               No vaccines recorded yet. The clinic will add them at the next visit.
@@ -150,7 +150,7 @@ export default async function PassportPage({ params }: { params: Promise<{ slug:
 
         {passport.prescriptions.length > 0 && (
           <div style={{ marginTop: 30 }}>
-            <p className="eyebrow">Recent prescriptions</p>
+            <p className="label">Recent prescriptions</p>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
               {passport.prescriptions.map((item) => (
                 <li

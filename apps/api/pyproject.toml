@@ -16,6 +16,7 @@ dependencies = [
   "qrcode>=8.0",
   "pillow>=11.0",
   "tzdata>=2024.1",
+  "python-multipart>=0.0.34",
 ]
 
 [dependency-groups]

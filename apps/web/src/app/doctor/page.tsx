@@ -93,7 +93,7 @@ export default async function DoctorPage() {
     <main className="wrap page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Doctor · clinical day</p>
+          <p className="label">Doctor · clinical day</p>
           <h1>Your day, {given}.</h1>
           <div className="meta-line">
             <span>{longDate(day.date)}</span>
@@ -219,7 +219,7 @@ export default async function DoctorPage() {
         <div className="side-stack">
           {next ? (
             <section className="focus-card" aria-label="Next appointment">
-              <p className="eyebrow">Next up</p>
+              <p className="label">Next up</p>
               <p className="focus-time">
                 {next.starts_at} · {next.mode === 'online' ? 'video consult' : 'in clinic'}
               </p>
@@ -254,7 +254,7 @@ export default async function DoctorPage() {
           ) : (
             <section className="panel focus-empty">
               <div className="panel-body">
-                <p className="eyebrow">Next up</p>
+                <p className="label">Next up</p>
                 <h2>Day is clear</h2>
                 <p className="muted" style={{ marginTop: 8, fontSize: 14 }}>
                   Nothing is waiting. Your next booking will appear here with the pet’s notes.
@@ -291,7 +291,7 @@ export default async function DoctorPage() {
 
           <section className="panel">
             <div className="panel-body">
-              <p className="eyebrow" style={{ marginBottom: 8 }}>
+              <p className="label" style={{ marginBottom: 8 }}>
                 Quick jump
               </p>
               <div className="row" style={{ gap: 8 }}>

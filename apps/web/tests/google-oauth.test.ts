@@ -128,7 +128,7 @@ describe('the callback', () => {
     });
   });
 
-  it('does not open a session for an address no clinic knows', async () => {
+  it('sends a new Google identity to the profile step instead of turning it away', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (input: RequestInfo | URL) => {
@@ -142,8 +142,8 @@ describe('the callback', () => {
       request('/auth/callback?code=the-code&state=the-state', 'pc_pkce=the-verifier.the-state'),
     );
 
-    expect(response.headers.get('location')).toContain('/login?error=This+address');
-    expect(response.headers.get('set-cookie') ?? '').not.toContain('pc_token=');
+    expect(response.headers.get('location')).toBe('http://localhost:3000/portal/join');
+    expect(response.headers.get('set-cookie') ?? '').toContain('pc_token=google.token');
   });
 
   it('surfaces a failed exchange', async () => {

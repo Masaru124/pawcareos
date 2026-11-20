@@ -59,7 +59,7 @@ export default async function RoomPage({ params }: { params: Promise<{ id: strin
     <main className="wrap" style={{ paddingTop: 36, maxWidth: 900 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <p className="eyebrow">Online consult · {room.clinic_name}</p>
+          <p className="label">Online consult · {room.clinic_name}</p>
           <h1 style={{ fontSize: 30 }}>{room.patient_name}</h1>
           <p className="fine" style={{ marginTop: 6 }}>
             {when} · {room.doctor_name}

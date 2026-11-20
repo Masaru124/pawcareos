@@ -18,7 +18,7 @@ from app.models.enums import (
     VaccineStatus,
 )
 from app.models.ops import AuditLog, InboundEvent, JobRun, MessageOutbox
-from app.models.pet import Patient, PetParent
+from app.models.pet import LegacyRecord, Patient, PetParent
 from app.models.portal import PetParentAccount
 from app.models.vaccine import Appointment, RecallJob, VaccineEvent
 
@@ -39,6 +39,7 @@ __all__ = [
     "Consultation",
     "InboundEvent",
     "JobRun",
+    "LegacyRecord",
     "MessageOutbox",
     "OutboxKind",
     "OutboxStatus",

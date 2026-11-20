@@ -155,6 +155,13 @@
       "skillPath": "skills/misc/git-guardrails-claude-code/SKILL.md",
       "computedHash": "7aa92e9d469c6cd0b24ed8accb2e4be681c44c1524d71604c06b4055b7b56482"
     },
+    "graphify": {
+      "source": "Graphify-Labs/graphify",
+      "commit": "f51d46c63d6280a5906277b29b118dc2dd119991",
+      "sourceType": "github",
+      "skillPath": "graphify/SKILL.md",
+      "computedHash": "ccbb81d226140392792dd3c59fd31c45e20eda632351ba23f308664bee7731bf"
+    },
     "grill-me": {
       "source": "mattpocock/skills",
       "commit": "5863806dd4e15c63174bee4e7515a4256792ecfa",

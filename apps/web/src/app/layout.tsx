@@ -1,10 +1,25 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { Fraunces, Inter } from 'next/font/google';
 
 import { SiteHeader } from '@/components/SiteHeader';
 import { currentPrincipal } from '@/lib/principal';
 
 import './globals.css';
+
+const display = Fraunces({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const body = Inter({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'PawCare OS — the 20-second prescription',
@@ -15,7 +30,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const principal = await currentPrincipal();
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
         <SiteHeader principal={principal} />
         {children}

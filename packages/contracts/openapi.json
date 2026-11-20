@@ -256,6 +256,43 @@
         "title": "BadgeOut",
         "type": "object"
       },
+      "Body_upload_legacy_record_api_v1_portal_pets__patient_id__records_post": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "record_type": {
+            "enum": [
+              "VACCINE_CARD",
+              "EXTERNAL_RX",
+              "LAB_REPORT",
+              "XRAY",
+              "OTHER"
+            ],
+            "title": "Record Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_type",
+          "file"
+        ],
+        "title": "Body_upload_legacy_record_api_v1_portal_pets__patient_id__records_post",
+        "type": "object"
+      },
       "BookingIn": {
         "properties": {
           "consent": {
@@ -1116,6 +1153,59 @@
         "title": "InviteCheckOut",
         "type": "object"
       },
+      "LegacyRecordOut": {
+        "description": "A record the family uploaded. Always shown as unverified.",
+        "properties": {
+          "content_type": {
+            "title": "Content Type",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "file_name": {
+            "title": "File Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "record_type": {
+            "title": "Record Type",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "uploaded_at": {
+            "format": "date-time",
+            "title": "Uploaded At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "record_type",
+          "description",
+          "file_name",
+          "content_type",
+          "size_bytes",
+          "uploaded_at"
+        ],
+        "title": "LegacyRecordOut",
+        "type": "object"
+      },
       "MeOut": {
         "properties": {
           "clinic_id": {
@@ -1255,6 +1345,52 @@
           "already_claimed"
         ],
         "title": "ParentInviteOut",
+        "type": "object"
+      },
+      "ParentSignupIn": {
+        "description": "What a pet parent gives to open their own portal (spec 2.1: name, phone, email).",
+        "properties": {
+          "full_name": {
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "phone": {
+            "pattern": "^\\+[1-9]\\d{9,14}$",
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "phone"
+        ],
+        "title": "ParentSignupIn",
+        "type": "object"
+      },
+      "ParentSignupOut": {
+        "properties": {
+          "created": {
+            "title": "Created",
+            "type": "boolean"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "parent_id": {
+            "format": "uuid",
+            "title": "Parent Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_id",
+          "email",
+          "created"
+        ],
+        "title": "ParentSignupOut",
         "type": "object"
       },
       "PassportView": {
@@ -1588,6 +1724,13 @@
           "clinic_name": {
             "title": "Clinic Name",
             "type": "string"
+          },
+          "legacy_records": {
+            "items": {
+              "$ref": "#/components/schemas/LegacyRecordOut"
+            },
+            "title": "Legacy Records",
+            "type": "array"
           },
           "name": {
             "title": "Name",
@@ -2501,6 +2644,53 @@
           }
         ],
         "summary": "Me",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/parent": {
+      "post": {
+        "description": "Open a pet-parent portal from a verified address (spec 2.1: self-serve signup).\n\nIdempotent: a returning parent gets their row back. A phone number the clinic\nalready knows attaches to that family instead of creating a second one, which is\nhow a self-registered parent's records appear once the clinic adds their pet.",
+        "operationId": "parent_signup_api_v1_auth_parent_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParentSignupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentSignupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Parent Signup",
         "tags": [
           "auth"
         ]
@@ -3496,6 +3686,171 @@
           }
         ],
         "summary": "Pet Records",
+        "tags": [
+          "portal"
+        ]
+      },
+      "post": {
+        "description": "Digitise a paper record: a photo of an old vaccine card, an outside Rx, a lab report.",
+        "operationId": "upload_legacy_record_api_v1_portal_pets__patient_id__records_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patient_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patient Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_legacy_record_api_v1_portal_pets__patient_id__records_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyRecordOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upload Legacy Record",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/v1/portal/pets/{patient_id}/records/{record_id}": {
+      "delete": {
+        "description": "Let a family withdraw a file they uploaded by mistake.\n\nOnly the parent's own upload is removable; the bytes go with the row, and the\naudit trail keeps the fact that something was removed.",
+        "operationId": "delete_legacy_record_api_v1_portal_pets__patient_id__records__record_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patient_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patient Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "record_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Record Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Legacy Record",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/v1/portal/pets/{patient_id}/records/{record_id}/file": {
+      "get": {
+        "operationId": "legacy_record_file_api_v1_portal_pets__patient_id__records__record_id__file_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patient_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patient Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "record_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Record Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Legacy Record File",
         "tags": [
           "portal"
         ]

@@ -25,6 +25,15 @@ type Replies = {
   invitation?: Response;
   clinic?: Response;
   parent?: Response;
+  parentSignup?: Response;
+};
+
+const NEW_PARENT = {
+  email: 'new@example.com',
+  password: 'secret1',
+  full_name: 'Anita Rao',
+  phone: '+919876543210',
+  mode: 'signup' as const,
 };
 
 /** Answers per endpoint, so the identity gate is exercised, not short-circuited. */
@@ -32,6 +41,7 @@ function stubFetch(replies: Replies) {
   const spy = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
     const url = String(input);
     if (url.includes('/api/v1/auth/invitation')) return replies.invitation ?? json({ invited: true, kind: 'clinic' });
+    if (url.includes('/api/v1/auth/parent')) return replies.parentSignup ?? json({ created: true });
     if (url.includes('/auth/v1/signup')) return replies.signup ?? json({});
     if (url.includes('/auth/v1/token')) return replies.token ?? json({ access_token: 'a.b.c', expires_in: 900 });
     if (url.includes('/api/v1/auth/me')) return replies.clinic ?? json({ role: 'doctor' });
@@ -72,7 +82,7 @@ describe('sign in', () => {
     expect((init as RequestInit).headers).toMatchObject({ apikey: 'anon-key' });
   });
 
-  it('refuses a verified password for an address no clinic knows', async () => {
+  it('sends a verified address with no PawCare row to finish its profile', async () => {
     stubFetch({
       token: json({ access_token: 'orphan.token' }),
       clinic: json({}, 401),
@@ -81,9 +91,9 @@ describe('sign in', () => {
 
     const response = await POST(request({ email: 'stranger@example.com', password: 'secret1' }));
 
-    expect(response.status).toBe(403);
-    expect((await response.json()).error).toContain("isn't linked to a clinic or pet record");
-    expect(response.headers.get('set-cookie')).toBeNull();
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true, signedIn: true, next: '/portal/join' });
+    expect(response.headers.get('set-cookie')).toContain('pc_token=orphan.token');
   });
 
   it('explains wrong credentials instead of echoing the provider', async () => {
@@ -131,9 +141,7 @@ describe('sign up', () => {
   it('asks for confirmation when the provider returns no session', async () => {
     const fetchSpy = stubFetch({ signup: json({ id: 'user-1', email: 'new@clinic.test' }) });
 
-    const response = await POST(
-      request({ email: 'new@clinic.test', password: 'secret1', mode: 'signup' }),
-    );
+    const response = await POST(request({ ...NEW_PARENT }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -147,25 +155,43 @@ describe('sign up', () => {
     ]);
   });
 
-  it('refuses an address no clinic invited, before creating an account', async () => {
-    const fetchSpy = stubFetch({ invitation: json({ invited: false, kind: null }) });
+  it('signs an uninvited address up as a self-serve pet parent', async () => {
+    const fetchSpy = stubFetch({
+      invitation: json({ invited: false, kind: null }),
+      signup: json({ access_token: 'parent.token', expires_in: 3600 }),
+      clinic: json({}, 401),
+      parent: json({ parent_name: 'Anita Rao', pets: [] }),
+    });
 
-    const response = await POST(
-      request({ email: 'stranger@example.com', password: 'secret1', mode: 'signup' }),
+    const response = await POST(request({ ...NEW_PARENT }));
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true, signedIn: true });
+    expect(response.headers.get('set-cookie')).toContain('pc_token=parent.token');
+
+    const urls = fetchSpy.mock.calls.map(([url]) => String(url));
+    expect(urls).toContain(`${URL}/auth/v1/signup`);
+    expect(urls).toContain('http://127.0.0.1:8000/api/v1/auth/parent');
+  });
+
+  it('does not create a parent profile for invited clinic staff', async () => {
+    const fetchSpy = stubFetch({
+      invitation: json({ invited: true, kind: 'clinic' }),
+      signup: json({ access_token: 'staff.token', expires_in: 3600 }),
+      clinic: json({ role: 'doctor' }),
+    });
+
+    await POST(request({ ...NEW_PARENT, email: 'doc@clinic.test' }));
+
+    expect(fetchSpy.mock.calls.map(([url]) => String(url))).not.toContain(
+      'http://127.0.0.1:8000/api/v1/auth/parent',
     );
-
-    expect(response.status).toBe(403);
-    expect((await response.json()).error).toContain("isn't on a clinic invite list");
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    expect(response.headers.get('set-cookie')).toBeNull();
   });
 
   it('creates nothing when the invite list cannot be reached', async () => {
     const fetchSpy = stubFetch({ invitation: json({}, 500) });
 
-    const response = await POST(
-      request({ email: 'new@clinic.test', password: 'secret1', mode: 'signup' }),
-    );
+    const response = await POST(request({ ...NEW_PARENT }));
 
     expect(response.status).toBe(503);
     expect((await response.json()).error).toContain('invite list is unreachable');
@@ -178,9 +204,7 @@ describe('sign up', () => {
       clinic: json({ role: 'receptionist' }),
     });
 
-    const response = await POST(
-      request({ email: 'new@clinic.test', password: 'secret1', mode: 'signup' }),
-    );
+    const response = await POST(request({ ...NEW_PARENT, email: 'new@clinic.test' }));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true, signedIn: true });
@@ -190,9 +214,7 @@ describe('sign up', () => {
   it('surfaces the provider reason for a rejected address', async () => {
     stubFetch({ signup: json({ code: 400, msg: 'Email address "x@example.com" is invalid' }, 400) });
 
-    const response = await POST(
-      request({ email: 'x@example.com', password: 'secret1', mode: 'signup' }),
-    );
+    const response = await POST(request({ ...NEW_PARENT, email: 'x@example.com' }));
 
     expect(response.status).toBe(400);
     expect((await response.json()).error).toBe('Email address "x@example.com" is invalid');
@@ -202,11 +224,25 @@ describe('sign up', () => {
     const fetchSpy = stubFetch({});
 
     const response = await POST(
-      request({ email: 'new@clinic.test', password: 'abc', mode: 'signup' }),
+      request({ ...NEW_PARENT, email: 'new@clinic.test', password: 'abc' }),
     );
 
     expect(response.status).toBe(400);
     expect((await response.json()).error).toBe('Use at least 6 characters.');
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('asks for a name and a country-code number before calling out', async () => {
+    const fetchSpy = stubFetch({});
+
+    const noName = await POST(request({ ...NEW_PARENT, full_name: ' ' }));
+    expect(noName.status).toBe(400);
+    expect((await noName.json()).error).toBe('Enter your full name.');
+
+    const badPhone = await POST(request({ ...NEW_PARENT, phone: '9876543210' }));
+    expect(badPhone.status).toBe(400);
+    expect((await badPhone.json()).error).toContain('country code');
+
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

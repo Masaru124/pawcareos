@@ -101,7 +101,7 @@ export default async function PortalPage() {
     <main className="wrap page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Pet parent · passport</p>
+          <p className="label">Pet parent · passport</p>
           <h1>{me.parent_name}</h1>
           <div className="meta-line">
             <span>Number ending …{me.phone_suffix}</span>
@@ -171,7 +171,7 @@ export default async function PortalPage() {
         <div className="side-stack">
           {nextVisit ? (
             <section className="focus-card">
-              <p className="eyebrow">Next visit</p>
+              <p className="label">Next visit</p>
               <p className="focus-time">
                 {prettyTime(nextVisit.starts_at)} ·{' '}
                 {nextVisit.mode === 'online' ? 'video consult' : 'in clinic'}
@@ -192,7 +192,7 @@ export default async function PortalPage() {
           ) : (
             <section className="panel">
               <div className="panel-body">
-                <p className="eyebrow">Next visit</p>
+                <p className="label">Next visit</p>
                 <h2 style={{ fontSize: 22 }}>Nothing booked</h2>
                 <p className="muted" style={{ marginTop: 8, fontSize: 14 }}>
                   When a booster is due, one WhatsApp message carries three times you can take.

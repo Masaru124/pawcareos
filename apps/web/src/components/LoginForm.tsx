@@ -31,6 +31,8 @@ export function LoginForm() {
       body: JSON.stringify({
         email: form.get('email'),
         password: form.get('password'),
+        full_name: form.get('full_name'),
+        phone: form.get('phone'),
         mode,
       }),
     });
@@ -39,6 +41,7 @@ export function LoginForm() {
       error?: string;
       message?: string;
       signedIn?: boolean;
+      next?: string;
     };
 
     if (!response.ok) {
@@ -53,7 +56,7 @@ export function LoginForm() {
       return;
     }
 
-    router.replace('/enter');
+    router.replace(payload.next ?? '/enter');
     router.refresh();
   }
 
@@ -80,11 +83,31 @@ export function LoginForm() {
         </button>
       </div>
 
-      <form className="stack" onSubmit={submit}>
+      {/* method=post so a submit before hydration cannot put the password in the URL. */}
+      <form className="stack" onSubmit={submit} method="post">
+        {creating && (
+          <div className="field">
+            <label htmlFor="full_name">Full name</label>
+            <input id="full_name" name="full_name" required minLength={2} autoComplete="name" />
+          </div>
+        )}
         <div className="field">
-          <label htmlFor="email">Work email</label>
+          <label htmlFor="email">{creating ? 'Email' : 'Work email'}</label>
           <input id="email" name="email" type="email" autoComplete="username" required />
         </div>
+        {creating && (
+          <div className="field">
+            <label htmlFor="phone">WhatsApp number</label>
+            <input
+              id="phone"
+              name="phone"
+              required
+              pattern="^\+[1-9][0-9]{9,14}$"
+              placeholder="+919876543210"
+              autoComplete="tel"
+            />
+          </div>
+        )}
         <div className="field">
           <label htmlFor="password">Password</label>
           <input
@@ -113,8 +136,8 @@ export function LoginForm() {
         </button>
         <p className="fine">
           {creating
-            ? 'Use the address your clinic invited. The first sign-in claims that invitation.'
-            : 'Only an address your clinic invited gets in. Sessions last an hour.'}
+            ? 'Pet parents can sign up here. Clinic staff need an invitation from their clinic first.'
+            : 'Sessions last an hour. Clinic staff access needs an invitation on file.'}
         </p>
       </form>
     </div>

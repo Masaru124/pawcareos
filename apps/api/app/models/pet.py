@@ -2,7 +2,7 @@ import uuid
 from datetime import date
 from decimal import Decimal
 
-from sqlalchemy import Boolean, Date, ForeignKey, Numeric, String, Text
+from sqlalchemy import Boolean, Date, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -42,3 +42,31 @@ class Patient(Base, IdMixin, CreatedAtMixin, UpdatedAtMixin):
     photo_url: Mapped[str | None] = mapped_column(Text)
     passport_slug: Mapped[str] = mapped_column(String(10), unique=True, nullable=False, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+
+class LegacyRecord(Base, IdMixin, CreatedAtMixin):
+    """A paper record the family photographed before the clinic went digital.
+
+    Clinic-issued records are generated from consultations; this is the only
+    parent-authored clinical document, so it is stored apart from them and marked
+    as unverified in every view that shows it.
+    """
+
+    __tablename__ = "legacy_records"
+
+    patient_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("patients.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    uploaded_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("pet_parent_accounts.id", ondelete="SET NULL")
+    )
+    record_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    content_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    storage_key: Mapped[str] = mapped_column(Text, nullable=False)

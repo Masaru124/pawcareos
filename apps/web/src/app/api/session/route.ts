@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { invitationFor, NOT_LINKED, resolveHome } from '@/lib/identity';
+import { ensureParentProfile, invitationFor, resolveHome } from '@/lib/identity';
 
 const COOKIE = 'pc_token';
 
@@ -27,13 +27,19 @@ function reason(payload: SupabaseError, status: number): string {
 }
 
 /**
- * Strict gate: a Supabase identity alone opens nothing. The address must already be on
- * a clinic's staff list or a family's portal account, or no cookie is written.
+ * Clinic staff still need an invitation before a session opens. A pet parent does not:
+ * spec 2.1 lets them sign up first and attach to a clinic later. An identity with no
+ * PawCare row yet keeps its cookie but is sent to finish their profile, where the API
+ * refuses every clinic endpoint.
  */
 async function openSession(accessToken: string, expiresIn?: number): Promise<NextResponse> {
   try {
     if ((await resolveHome(accessToken)) === null) {
-      return NextResponse.json({ error: NOT_LINKED }, { status: 403 });
+      return withCookie(
+        NextResponse.json({ ok: true, signedIn: true, next: '/portal/join' }),
+        accessToken,
+        expiresIn,
+      );
     }
   } catch {
     return NextResponse.json(
@@ -68,6 +74,8 @@ export async function POST(request: Request) {
     email?: string;
     password?: string;
     mode?: 'signin' | 'signup';
+    full_name?: string;
+    phone?: string;
   };
   if (!body.email || !body.password) {
     return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
@@ -77,10 +85,24 @@ export async function POST(request: Request) {
   }
 
   if (body.mode === 'signup') {
-    // Refuse before creating anything: an uninvited address must not leave an auth account.
-    let invited = false;
+    const fullName = (body.full_name ?? '').trim();
+    const phone = (body.phone ?? '').trim();
+    if (fullName.length < 2) {
+      return NextResponse.json({ error: 'Enter your full name.' }, { status: 400 });
+    }
+    if (!/^\+[1-9]\d{9,14}$/.test(phone)) {
+      return NextResponse.json(
+        { error: 'Enter the WhatsApp number with country code, like +919876543210.' },
+        { status: 400 },
+      );
+    }
+
+    // A clinic invitation decides which door the new account opens; no invitation
+    // means a self-serve pet-parent portal.
+    let staffInvite = false;
     try {
-      invited = (await invitationFor(body.email)).invited;
+      const invite = await invitationFor(body.email);
+      staffInvite = invite.invited && invite.kind === 'clinic';
     } catch {
       return NextResponse.json(
         {
@@ -88,15 +110,6 @@ export async function POST(request: Request) {
             'The invite list is unreachable, so no account was created. Try again in a moment.',
         },
         { status: 503 },
-      );
-    }
-    if (!invited) {
-      return NextResponse.json(
-        {
-          error:
-            "That address isn't on a clinic invite list yet. Ask your clinic to invite it first.",
-        },
-        { status: 403 },
       );
     }
 
@@ -114,6 +127,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: reason(payload, response.status) }, { status: 400 });
     }
     if (payload.access_token) {
+      if (staffInvite) return openSession(payload.access_token, payload.expires_in);
+      try {
+        const linked = await ensureParentProfile(payload.access_token, { full_name: fullName, phone });
+        if (!linked) {
+          return NextResponse.json(
+            {
+              error:
+                'The account exists but the portal could not be opened. Sign in and finish your details.',
+            },
+            { status: 502 },
+          );
+        }
+      } catch {
+        return NextResponse.json(
+          {
+            error:
+              'Your account was created, but PawCare could not reach its records. Sign in to finish setting up.',
+          },
+          { status: 503 },
+        );
+      }
       return openSession(payload.access_token, payload.expires_in);
     }
     return NextResponse.json({

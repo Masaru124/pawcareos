@@ -86,6 +86,35 @@ async def _claim_invitation(
 CurrentUser = Annotated[ClinicUser, Depends(current_user)]
 
 
+class VerifiedIdentity(NamedTuple):
+    """A Supabase identity, before any PawCare row claims it.
+
+    Only the self-serve parent signup may use this: it is the one place where
+    proving the address is enough to start, because a pet parent is allowed to
+    exist before a clinic knows them.
+    """
+
+    auth_user_id: uuid.UUID
+    email: str | None
+
+
+async def verified_identity(
+    credentials: CredentialsDep,
+    settings: SettingsDep,
+) -> VerifiedIdentity:
+    if credentials is None:
+        raise unauthorized()
+    claims = await verify_supabase_jwt(credentials.credentials, settings)
+    try:
+        auth_user_id = uuid.UUID(claims.sub)
+    except ValueError as exc:
+        raise unauthorized("Token subject is not a user id") from exc
+    return VerifiedIdentity(auth_user_id=auth_user_id, email=claims.email)
+
+
+VerifiedDep = Annotated[VerifiedIdentity, Depends(verified_identity)]
+
+
 class ParentIdentity(NamedTuple):
     account: PetParentAccount
     parent: PetParent

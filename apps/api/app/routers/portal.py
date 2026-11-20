@@ -1,18 +1,27 @@
 import uuid
 from datetime import UTC, date, datetime
-from typing import Annotated
+from typing import Annotated, Literal
 from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy import func, select
 
-from app.deps import CurrentUser, NotFoundError, ParentDep, SessionDep, require_permission
+from app.deps import (
+    CurrentUser,
+    NotFoundError,
+    ParentDep,
+    SessionDep,
+    SettingsDep,
+    require_permission,
+)
 from app.models import (
     Appointment,
     AppointmentStatus,
     Clinic,
     ClinicUser,
     Consultation,
+    LegacyRecord,
     Patient,
     PetParent,
     PetParentAccount,
@@ -23,6 +32,7 @@ from app.models import (
 )
 from app.rbac import Action
 from app.schemas.portal import (
+    LegacyRecordOut,
     ParentInviteIn,
     ParentInviteOut,
     PetRecordsOut,
@@ -33,6 +43,7 @@ from app.schemas.portal import (
     RecordPrescriptionOut,
     RecordVaccineOut,
 )
+from app.services import records as record_store
 from app.services.audit import record_audit
 
 router = APIRouter(prefix="/portal", tags=["portal"])
@@ -159,6 +170,18 @@ async def pet_records(
         )
     ).all()
 
+    legacy_records = (
+        (
+            await session.execute(
+                select(LegacyRecord)
+                .where(LegacyRecord.patient_id == patient.id)
+                .order_by(LegacyRecord.created_at.desc())
+            )
+        )
+        .scalars()
+        .all()
+    )
+
     items_by_prescription: dict[uuid.UUID, list[PrescriptionItem]] = {}
     prescription_ids = [prescription.id for prescription, _, _ in prescription_rows]
     if prescription_ids:
@@ -211,7 +234,157 @@ async def pet_records(
             )
             for prescription, consultation, doctor in prescription_rows
         ],
+        legacy_records=[
+            LegacyRecordOut(
+                id=record.id,
+                record_type=record.record_type,
+                description=record.description,
+                file_name=record.file_name,
+                content_type=record.content_type,
+                size_bytes=record.size_bytes,
+                uploaded_at=record.created_at,
+            )
+            for record in legacy_records
+        ],
     )
+
+
+LegacyRecordType = Literal["VACCINE_CARD", "EXTERNAL_RX", "LAB_REPORT", "XRAY", "OTHER"]
+
+
+async def _owned_pet(patient_id: uuid.UUID, identity: ParentDep, session: SessionDep) -> Patient:
+    """Another family's pet is indistinguishable from a missing one."""
+    patient = await session.scalar(
+        select(Patient).where(
+            Patient.id == patient_id, Patient.parent_id == identity.parent.id
+        )
+    )
+    if patient is None:
+        raise NotFoundError("Pet not found")
+    return patient
+
+
+@router.post(
+    "/pets/{patient_id}/records", response_model=LegacyRecordOut, status_code=status.HTTP_201_CREATED
+)
+async def upload_legacy_record(
+    patient_id: uuid.UUID,
+    identity: ParentDep,
+    session: SessionDep,
+    settings: SettingsDep,
+    record_type: Annotated[LegacyRecordType, Form()],
+    file: Annotated[UploadFile, File()],
+    description: Annotated[str | None, Form()] = None,
+) -> LegacyRecordOut:
+    """Digitise a paper record: a photo of an old vaccine card, an outside Rx, a lab report."""
+    patient = await _owned_pet(patient_id, identity, session)
+
+    content_type = (file.content_type or "").lower()
+    if content_type not in record_store.CONTENT_TYPES:
+        raise HTTPException(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            "Upload a PDF, JPEG, PNG or WebP file",
+        )
+
+    content = await file.read(record_store.MAX_UPLOAD_BYTES + 1)
+    if not content:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "That file is empty")
+    if len(content) > record_store.MAX_UPLOAD_BYTES:
+        raise HTTPException(status.HTTP_413_CONTENT_TOO_LARGE, "Records must be under 5 MB")
+
+    note = (description or "").strip() or None
+    if note is not None and len(note) > 500:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Keep the note under 500 characters")
+
+    storage_key, digest = record_store.write_legacy_file(settings, content, content_type)
+    record = LegacyRecord(
+        patient_id=patient.id,
+        uploaded_by=identity.account.id,
+        record_type=record_type,
+        description=note,
+        file_name=(file.filename or "record")[:255],
+        content_type=content_type,
+        size_bytes=len(content),
+        sha256=digest,
+        storage_key=storage_key,
+    )
+    session.add(record)
+    await session.flush()
+    await record_audit(
+        session,
+        actor_id=None,
+        clinic_id=patient.primary_clinic_id,
+        action="parent.record_uploaded",
+        subject_type="legacy_record",
+        subject_id=record.id,
+    )
+
+    return LegacyRecordOut(
+        id=record.id,
+        record_type=record.record_type,
+        description=record.description,
+        file_name=record.file_name,
+        content_type=record.content_type,
+        size_bytes=record.size_bytes,
+        uploaded_at=record.created_at,
+    )
+
+
+@router.get("/pets/{patient_id}/records/{record_id}/file")
+async def legacy_record_file(
+    patient_id: uuid.UUID,
+    record_id: uuid.UUID,
+    identity: ParentDep,
+    session: SessionDep,
+    settings: SettingsDep,
+) -> FileResponse:
+    patient = await _owned_pet(patient_id, identity, session)
+    record = await session.scalar(
+        select(LegacyRecord).where(
+            LegacyRecord.id == record_id, LegacyRecord.patient_id == patient.id
+        )
+    )
+    if record is None:
+        raise NotFoundError("Record not found")
+    path = record_store.legacy_file_path(settings, record.storage_key)
+    if not path.is_file():
+        raise NotFoundError("That file is no longer stored")
+    return FileResponse(path, media_type=record.content_type, filename=record.file_name)
+
+
+@router.delete("/pets/{patient_id}/records/{record_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_legacy_record(
+    patient_id: uuid.UUID,
+    record_id: uuid.UUID,
+    identity: ParentDep,
+    session: SessionDep,
+    settings: SettingsDep,
+) -> Response:
+    """Let a family withdraw a file they uploaded by mistake.
+
+    Only the parent's own upload is removable; the bytes go with the row, and the
+    audit trail keeps the fact that something was removed.
+    """
+    patient = await _owned_pet(patient_id, identity, session)
+    record = await session.scalar(
+        select(LegacyRecord).where(
+            LegacyRecord.id == record_id, LegacyRecord.patient_id == patient.id
+        )
+    )
+    if record is None:
+        raise NotFoundError("Record not found")
+
+    record_store.legacy_file_path(settings, record.storage_key).unlink(missing_ok=True)
+    await session.delete(record)
+    await record_audit(
+        session,
+        actor_id=None,
+        clinic_id=patient.primary_clinic_id,
+        action="parent.record_deleted",
+        subject_type="legacy_record",
+        subject_id=record_id,
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/invites", response_model=ParentInviteOut, status_code=201)

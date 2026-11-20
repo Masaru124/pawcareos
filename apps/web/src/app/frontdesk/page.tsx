@@ -88,7 +88,7 @@ export default async function FrontDeskPage() {
     <main className="wrap page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Front desk · arrivals</p>
+          <p className="label">Front desk · arrivals</p>
           <h1>{desk.clinic_name}</h1>
           <div className="meta-line">
             <span>{longDate(desk.date)}</span>

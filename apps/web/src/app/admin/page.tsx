@@ -129,7 +129,7 @@ export default async function AdminPage() {
     <main className="wrap page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">Owner · operations</p>
+          <p className="label">Owner · operations</p>
           <h1>{clinic.name}</h1>
           <div className="meta-line">
             <span>

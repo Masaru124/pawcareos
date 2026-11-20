@@ -6,14 +6,12 @@ import { sessionEmail } from '@/lib/session';
 
 const copy = {
   clinic: {
-    eyebrow: 'Clinic sign in',
     title: 'Back to the table.',
     body: 'For owners, doctors and reception. Your clinic invites the address; the first sign-in claims it.',
   },
   parent: {
-    eyebrow: 'Pet parent sign in',
     title: 'Your pet’s records.',
-    body: 'Passports, vaccination dates, prescriptions and video consults. Ask your clinic to add this email to your family record.',
+    body: 'Create an account with your name and WhatsApp number. Passports, vaccination dates, prescriptions and video consults live here — and your clinic’s records appear as soon as they add your pet.',
   },
 } as const;
 
@@ -38,7 +36,6 @@ export default async function LoginPage({
     }[principal.role];
     return (
       <main className="wrap" style={{ paddingTop: 48, maxWidth: 460 }}>
-        <p className="eyebrow">Already signed in</p>
         <h1 style={{ fontSize: 34 }}>You’re in.</h1>
         <p className="muted" style={{ marginTop: 10 }}>
           {principal.name}
@@ -85,7 +82,6 @@ export default async function LoginPage({
         </Link>
       </div>
 
-      <p className="eyebrow">{text.eyebrow}</p>
       <h1 style={{ fontSize: 34 }}>{text.title}</h1>
       <p className="muted" style={{ marginTop: 10 }}>
         {text.body}

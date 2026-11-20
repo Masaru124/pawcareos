@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { readCookie } from '@/lib/cookies';
-import { NOT_LINKED, resolveHome } from '@/lib/identity';
+import { resolveHome } from '@/lib/identity';
 import { PKCE_COOKIE, supabaseUrl } from '@/lib/oauth';
 import { constantTimeEquals } from '@/lib/pkce';
 
@@ -53,14 +53,18 @@ export async function GET(request: Request): Promise<NextResponse> {
     );
   }
 
-  // Strict: Google proving the address is not enough; the clinic or family must know it too.
+  // Clinic staff need an invitation; a pet parent may be brand new (spec 2.1), so an
+  // unlinked Google identity is sent to finish its profile rather than turned away.
+  let home: string | null = null;
   try {
-    if ((await resolveHome(payload.access_token)) === null) return failure(request, NOT_LINKED);
+    home = await resolveHome(payload.access_token);
   } catch {
     return failure(request, 'The API is unreachable, so the session could not be opened.');
   }
 
-  const response = NextResponse.redirect(new URL('/enter', url.origin));
+  const response = NextResponse.redirect(
+    new URL(home ? '/enter' : '/portal/join', url.origin),
+  );
   response.cookies.set('pc_token', payload.access_token, {
     httpOnly: true,
     sameSite: 'lax',

@@ -1,27 +1,13 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { currentPrincipal } from '@/lib/principal';
 
 const proof = [
-  { value: '20 s', label: 'from exam table to signed prescription' },
+  { value: '20 s', label: 'exam table to signed prescription' },
   { value: '3 doors', label: 'one per role, no shared dashboard' },
-  { value: '1 link', label: 'carrying vaccines, doses and the next due date' },
-];
-
-const features = [
-  {
-    title: 'Prescribe while the dog is still on the table',
-    body: 'Weight, diagnosis and three drugs on one keyboard-first screen. The code prints once and never changes.',
-  },
-  {
-    title: 'A passport the parent opens in the chat',
-    body: 'Every visit ends with the prescription and a public passport page. No app install, no login, no PDF hunting.',
-  },
-  {
-    title: 'Recall that books instead of nagging',
-    body: 'A week before a booster is due the parent gets one message with three buttons. Confirm books the slot. Stop means stop.',
-  },
+  { value: '1 link', label: 'vaccines, doses and the next due date' },
 ];
 
 const doors = [
@@ -51,117 +37,165 @@ const doors = [
   },
 ];
 
+const chapters = [
+  {
+    photo: '/photos/cat-exam.jpg',
+    width: 1184,
+    height: 880,
+    alt: 'A veterinarian listening to a grey cat’s chest with a stethoscope',
+    title: 'Prescribe while the dog is still on the table',
+    body: 'Weight, diagnosis and three drugs on one keyboard-first screen. The code prints once and never changes, so the bottle in the parent’s hand and the row in the record always agree.',
+    points: ['Keyboard-first, one screen', 'Signed and locked on issue', 'Allergies surfaced before the dose'],
+  },
+  {
+    photo: '/photos/parent-phone.jpg',
+    width: 1248,
+    height: 832,
+    alt: 'A pet parent holding a phone while a brown dog rests beside her',
+    title: 'A passport the parent opens in the chat',
+    body: 'Every visit ends with the prescription and a public passport page. No app install, no login, no PDF hunting — the booster date is on the same page as the medicine.',
+    points: ['One link per pet, no account', 'Vaccines with due dates', 'Next visit already on the card'],
+  },
+];
+
 export default async function HomePage() {
   const principal = await currentPrincipal();
   if (principal) redirect(principal.home);
 
   return (
-    <main>
-      <section className="wrap landing-hero">
-        <div>
-          <p className="eyebrow">For independent veterinary clinics</p>
-          <h1>The 20-second prescription.</h1>
-          <p className="lede">
-            PawCare OS ends the visit properly: a signed prescription, a WhatsApp passport, and a
-            booster reminder parents actually answer. Three roles, three rooms — nobody squints at
-            somebody else’s screen.
-          </p>
-          <div className="hero-actions">
-            <Link className="button" href="/login">
-              Open the clinic
-            </Link>
-            <Link className="button ghost" href="/find-a-vet">
-              Find a vet
-            </Link>
-            <Link className="button quiet" href="/login?as=parent">
-              I’m a pet parent
-            </Link>
-          </div>
-          <p className="fine">
-            Runs on the receptionist’s laptop and the doctor’s phone. No install.
-          </p>
-        </div>
-
-        <aside className="hero-aside" aria-label="The clinic day at a glance">
-          <div className="hero-aside-head">
-            <span className="dot-live" aria-hidden="true" />
-            <span>Saturday · 09:00–18:00</span>
-          </div>
-          <ol className="hero-list">
-            <li>
-              <time>10:30</time>
-              <span>
-                <strong>Bruno</strong> · Golden Retriever
-                <em>Booster review</em>
-              </span>
-              <span className="pill valid">arrived</span>
-            </li>
-            <li>
-              <time>11:00</time>
-              <span>
-                <strong>Milo</strong> · Indie
-                <em>Skin consult</em>
-              </span>
-              <span className="pill neutral">due</span>
-            </li>
-            <li>
-              <time>11:30</time>
-              <span>
-                <strong>Cleo</strong> · Persian
-                <em>Online follow-up</em>
-              </span>
-              <span className="pill due_soon">video</span>
-            </li>
-          </ol>
-          <p className="fine hero-aside-foot">Every row is one tap away from the record.</p>
-        </aside>
-      </section>
-
-      <section className="wrap">
-        <div className="proof-strip">
-          {proof.map((item) => (
-            <div key={item.value}>
-              <div className="proof-value">{item.value}</div>
-              <p className="fine">{item.label}</p>
+    <main className="landing">
+      <section className="hero">
+        <div className="wrap hero-inner">
+          <div className="hero-copy">
+            <h1>
+              The <span className="nobreak">20-second</span> prescription.
+            </h1>
+            <p className="hero-lede">
+              PawCare OS ends the visit properly: a signed prescription, a WhatsApp passport, and a
+              booster reminder parents actually answer. Three roles, three rooms — nobody squints at
+              somebody else’s screen.
+            </p>
+            <div className="hero-actions">
+              <Link className="button large" href="/login">
+                Open the clinic
+              </Link>
+              <Link className="button ghost large" href="/find-a-vet">
+                Book a visit
+              </Link>
             </div>
-          ))}
+            <p className="hero-fine">
+              Runs on the receptionist’s laptop and the doctor’s phone. No install.
+            </p>
+          </div>
+
+          <figure className="hero-frame">
+            <Image
+              src="/photos/exam.jpg"
+              alt="A veterinarian in green scrubs examining a golden retriever on the exam table"
+              width={1248}
+              height={832}
+              priority
+              sizes="(max-width: 900px) 100vw, 46vw"
+            />
+            <figcaption className="hero-ticket">
+              <span className="hero-ticket-time">Today · 10:30</span>
+              <strong>Bruno · Golden Retriever</strong>
+              <span className="hero-ticket-sub">Booster review with Dr. Rao</span>
+              <span className="pill valid">arrived</span>
+            </figcaption>
+          </figure>
         </div>
       </section>
 
-      <section className="wrap section">
-        <div className="section-head">
-          <p className="eyebrow">Signing in</p>
-          <h2>Everyone gets the page they need</h2>
+      <section className="statement">
+        <div className="wrap statement-inner">
+          <h2 className="statement-line">
+            Fourteen boosters are due this month. <em>All fourteen were asked, four are booked.</em>
+          </h2>
+          <dl className="proof">
+            {proof.map((item) => (
+              <div key={item.value}>
+                <dt>{item.value}</dt>
+                <dd>{item.label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-        <div className="door-grid">
+      </section>
+
+      <section className="wrap doors">
+        <h2 className="section-title">Everyone gets the page they need</h2>
+        <ul className="door-list">
           {doors.map((door) => (
-            <Link key={door.role} className="door" href={door.href}>
-              <span className="pill neutral">{door.role}</span>
-              <h3>{door.title}</h3>
-              <p className="muted">{door.body}</p>
-              <span className="door-go">Sign in →</span>
-            </Link>
+            <li key={door.role}>
+              <Link className="door-row" href={door.href}>
+                <span className="door-role">{door.role}</span>
+                <span className="door-text">
+                  <strong>{door.title}</strong>
+                  <span>{door.body}</span>
+                </span>
+                <span className="door-go" aria-hidden="true">
+                  →
+                </span>
+              </Link>
+            </li>
           ))}
+        </ul>
+      </section>
+
+      <section className="chapter">
+        <div className="wrap chapter-inner">
+          <div className="chapter-copy">
+            <h2 className="section-title">The clinic, not a dashboard</h2>
+            <p className="chapter-body">
+              One Saturday morning, four people, four screens that agree with each other. The board
+              the owner reads is the list the front desk works and the day the doctor is actually
+              having.
+            </p>
+            <ul className="chapter-list">
+              <li>Walk-ins appear on the board the moment they land</li>
+              <li>Check-in moves the row, it does not open a second one</li>
+              <li>Every action is signed with who did it and when</li>
+            </ul>
+          </div>
+          <figure className="chapter-photo wide">
+            <Image
+              src="/photos/reception.jpg"
+              alt="The reception desk of a small veterinary clinic in morning light"
+              width={1248}
+              height={832}
+              sizes="(max-width: 900px) 100vw, 48vw"
+            />
+          </figure>
         </div>
       </section>
 
-      <section className="wrap section">
-        <div className="section-head">
-          <p className="eyebrow">What changes on Monday</p>
-          <h2>A clinic record that finishes the job</h2>
-        </div>
-        <div className="feature-grid">
-          {features.map((feature, index) => (
-            <article key={feature.title} className="card feature-card">
-              <p className="mono feature-index">0{index + 1}</p>
-              <h3>{feature.title}</h3>
-              <p className="muted">{feature.body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      {chapters.map((chapter, index) => (
+        <section className="chapter" key={chapter.title}>
+          <div className={`wrap chapter-inner${index % 2 === 1 ? ' flipped' : ''}`}>
+            <div className="chapter-copy">
+              <h2 className="section-title">{chapter.title}</h2>
+              <p className="chapter-body">{chapter.body}</p>
+              <ul className="chapter-list">
+                {chapter.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </div>
+            <figure className="chapter-photo">
+              <Image
+                src={chapter.photo}
+                alt={chapter.alt}
+                width={chapter.width}
+                height={chapter.height}
+                sizes="(max-width: 900px) 100vw, 48vw"
+              />
+            </figure>
+          </div>
+        </section>
+      ))}
 
-      <section className="wrap section">
+      <section className="wrap cta">
         <div className="cta-band">
           <div>
             <h2>One clinic, one Saturday morning.</h2>
@@ -171,10 +205,10 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="cta-actions">
-            <Link className="button inverse" href="/find-a-vet">
+            <Link className="button inverse large" href="/find-a-vet">
               Book a visit
             </Link>
-            <Link className="button ghost inverse" href="/login">
+            <Link className="button ghost inverse large" href="/login">
               Sign in
             </Link>
           </div>

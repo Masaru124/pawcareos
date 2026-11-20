@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     # Keyless room provider for demos. Swap for a managed video provider before launch.
     video_base_url: str = "https://meet.jit.si"
     cron_secret: str = "dev-cron-secret"
+    # Where parents' uploaded paper records land. Object storage replaces this later.
+    record_storage_dir: str = "var/legacy-records"
     environment: str = "development"
 
     @property

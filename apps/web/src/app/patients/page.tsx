@@ -65,7 +65,7 @@ export default async function PatientsPage({
     <main className="wrap" style={{ paddingTop: 48 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <p className="eyebrow">Patient directory</p>
+          <p className="label">Patient directory</p>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 2.7rem)' }}>Every passport.</h1>
           <p className="muted" style={{ marginTop: 10, maxWidth: 520 }}>
             Search by pet name, the last four digits of the owner’s phone, or a microchip number.

@@ -70,7 +70,6 @@ export default async function FindAVetPage({
 
   return (
     <main className="wrap" style={{ paddingTop: 48, maxWidth: 860 }}>
-      <p className="eyebrow">Find a verified vet</p>
       <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.9rem)' }}>Book the next free slot.</h1>
       <p className="muted" style={{ marginTop: 10, maxWidth: 560 }}>
         Every doctor here holds a Veterinary Council of India registration on file. Pick a clinic
@@ -106,7 +105,7 @@ export default async function FindAVetPage({
         <section className="card" style={{ padding: '26px 24px', marginTop: 26 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
             <div>
-              <p className="eyebrow">
+              <p className="label">
                 {mode === 'online' ? 'Online consult' : 'Clinic visit'} · chosen slot
               </p>
               <h2 style={{ fontSize: 22, marginTop: 6 }}>
@@ -159,41 +158,61 @@ export default async function FindAVetPage({
         </section>
       )}
 
-      <div style={{ marginTop: 28, display: 'grid', gap: 14 }}>
+      <section className="panel" style={{ marginTop: 30 }}>
+        <div className="panel-head">
+          <h2>
+            {doctors.length} verified {doctors.length === 1 ? 'vet' : 'vets'}
+          </h2>
+          <span className="fine">{query ? `matching “${query}”` : 'across every clinic'}</span>
+        </div>
         {doctors.length === 0 && !failure ? (
-          <p className="muted">No verified vets match that search yet.</p>
+          <div className="empty">
+            <h3>No vets match that search</h3>
+            <p>Try a city, a clinic name, or the doctor’s own name.</p>
+          </div>
         ) : (
-          doctors.map((item) => (
-            <article key={item.doctor_id} className="card" style={{ padding: '22px 22px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-                <div>
-                  <h2 style={{ fontSize: 21 }}>{item.full_name}</h2>
-                  <p className="fine" style={{ marginTop: 6 }}>
-                    {item.qualification ?? 'B.V.Sc & A.H.'} · VCI {item.vci_suffix}
-                  </p>
-                  <p className="muted" style={{ marginTop: 10, fontSize: 15 }}>
-                    {item.clinic.name} · {item.clinic.address}, {item.clinic.city}
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                  <Link
-                    className="button"
-                    href={`/find-a-vet?doctor=${item.doctor_id}&date=${day}${query ? `&q=${encodeURIComponent(query)}` : ''}`}
-                  >
-                    See slots
-                  </Link>
-                  <Link
-                    className="button ghost"
-                    href={`/find-a-vet?doctor=${item.doctor_id}&date=${day}&mode=online${query ? `&q=${encodeURIComponent(query)}` : ''}`}
-                  >
-                    Online 24/7
-                  </Link>
-                </div>
-              </div>
-            </article>
-          ))
+          <ul className="doctor-list">
+            {doctors.map((item) => {
+              const initials = item.full_name
+                .split(' ')
+                .filter((part) => !part.endsWith('.'))
+                .map((part) => part[0])
+                .slice(0, 2)
+                .join('');
+              return (
+                <li key={item.doctor_id} className="doctor-row">
+                  <span className="doctor-mark" aria-hidden="true">
+                    {initials}
+                  </span>
+                  <div className="doctor-main">
+                    <strong>{item.full_name}</strong>
+                    <span className="doctor-meta">
+                      {item.qualification ?? 'B.V.Sc & A.H.'} · VCI {item.vci_suffix}
+                    </span>
+                    <span className="doctor-place">
+                      {item.clinic.name} · {item.clinic.address}, {item.clinic.city}
+                    </span>
+                  </div>
+                  <div className="doctor-actions">
+                    <Link
+                      className="button small"
+                      href={`/find-a-vet?doctor=${item.doctor_id}&date=${day}${query ? `&q=${encodeURIComponent(query)}` : ''}`}
+                    >
+                      See slots
+                    </Link>
+                    <Link
+                      className="button ghost small"
+                      href={`/find-a-vet?doctor=${item.doctor_id}&date=${day}&mode=online${query ? `&q=${encodeURIComponent(query)}` : ''}`}
+                    >
+                      Online 24/7
+                    </Link>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         )}
-      </div>
+      </section>
 
       <p className="fine" style={{ marginTop: 26 }}>
         Already a client? <Link href="/login">Sign in</Link> to see your pet’s records.

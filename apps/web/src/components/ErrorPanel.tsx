@@ -13,7 +13,7 @@ export function ErrorPanel({
 }) {
   return (
     <div className="card" style={{ padding: '26px 24px', borderColor: 'rgba(155, 47, 47, 0.35)' }}>
-      <p className="eyebrow" style={{ color: 'var(--rose)', marginBottom: 8 }}>
+      <p className="label" style={{ color: 'var(--rose)', marginBottom: 8 }}>
         {status ? `HTTP ${status}` : 'Request failed'}
       </p>
       <h2 style={{ fontSize: 22 }}>{title}</h2>

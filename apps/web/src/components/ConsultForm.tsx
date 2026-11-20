@@ -84,7 +84,7 @@ export function ConsultForm({ patientId, patientName }: { patientId: string; pat
   if (result) {
     return (
       <div className="card" style={{ marginTop: 26, padding: '30px 28px' }}>
-        <p className="eyebrow">Issued</p>
+        <p className="label">Issued</p>
         <h2 style={{ fontSize: 30 }}>{result.rx_code}</h2>
         <p className="muted" style={{ marginTop: 10 }}>
           The prescription for {patientName} is signed. WhatsApp delivery is{' '}
@@ -131,7 +131,7 @@ export function ConsultForm({ patientId, patientName }: { patientId: string; pat
 
       <div className="card stack" style={{ padding: '24px 22px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <p className="eyebrow" style={{ marginBottom: 0 }}>
+          <p className="label" style={{ marginBottom: 0 }}>
             Prescription
           </p>
           <button

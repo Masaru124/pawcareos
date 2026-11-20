@@ -13,6 +13,9 @@ shots/
 .superpowers/
 *.tsbuildinfo
 
+# graphify codebase graph (rebuild with `graphify update .`)
+graphify-out/
+
 # e2e fixtures and output
 e2e/.creds.json
 e2e/report.json
@@ -32,3 +35,5 @@ e2e/playwright-report/
 .opencode/
 .superpowers/
 docs/
+# parent-uploaded legacy records (local storage)
+apps/api/var/
